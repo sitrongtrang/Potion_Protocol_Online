@@ -8,17 +8,21 @@ public class NetworkManager : MonoBehaviour
 {
     public static NetworkManager Instance { get; private set; }
 
+    [Header("Connection Settings")]
+    [SerializeField] private float _reconnectDelay = 5f;
     private TcpClient _client;
     private NetworkStream _stream;
     private Thread _receiveThread;
     private bool _isConnected = false;
 
+    #region Unity Lifecycle
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            // Initialize()
         }
         else
         {
@@ -28,6 +32,8 @@ public class NetworkManager : MonoBehaviour
 
     public void ConnectToServer(string ip, int port)
     {
+        if (_isConnected) return;
+
         try
         {
             _client = new TcpClient();
@@ -35,20 +41,48 @@ public class NetworkManager : MonoBehaviour
             _stream = _client.GetStream();
             _isConnected = true;
 
-            _receiveThread = new Thread(ReceiveData)
-            {
-                IsBackground = true
-            };
+            _receiveThread = new Thread(ReceiveData);
+            _receiveThread.IsBackground = true;
             _receiveThread.Start();
 
-            Debug.Log("Connected to server");
+            Debug.Log($"Connected to {ip}:{port}");
+            NetworkEvents.InvokeConnectionStatusChanged(true);
         }
         catch (Exception e)
         {
-            Debug.LogError($"Connection error: {e.Message}");
+            Debug.LogError($"Connection failed: {e.Message}");
+            ScheduleReconnect();
         }
     }
+    
+    public void Disconnect()
+    {
+        _isConnected = false;
+        _receiveThread?.Abort();
+        
+        try
+        {
+            _stream?.Close();
+            _client?.Close();
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"Disconnect error: {e.Message}");
+        }
 
+        NetworkEvents.InvokeConnectionStatusChanged(false);
+    }
+
+    private void ScheduleReconnect()
+    {
+        UnityMainThreadDispatcher.Instance().Enqueue(() => 
+        {
+            Invoke(nameof(ConnectToServer), _reconnectDelay);
+        });
+    }
+    #endregion
+
+    #region Data Transmission
     private void ReceiveData()
     {
         byte[] buffer = new byte[4096];
@@ -63,19 +97,24 @@ public class NetworkManager : MonoBehaviour
                     if (message != null)
                     {
                         UnityMainThreadDispatcher.Instance().Enqueue(() => 
-                            NetworkEvents.InvokeMessageReceived(message));
+                        {
+                            NetworkEvents.InvokeMessageReceived(message);
+                        });
                     }
                 }
             }
-            catch (IOException)
-            {
-                Debug.Log("Disconnected from server");
-                _isConnected = false;
-            }
             catch (Exception e)
             {
-                Debug.LogError($"Receive error: {e.Message}");
-                _isConnected = false;
+                if (_isConnected) // Only log if we expected to be connected
+                {
+                    Debug.LogError($"Receive error: {e.Message}");
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => 
+                    {
+                        Disconnect();
+                        ScheduleReconnect();
+                    });
+                }
+                break;
             }
         }
     }
@@ -92,14 +131,66 @@ public class NetworkManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"Send error: {e.Message}");
-            _isConnected = false;
+            Disconnect();
+            ScheduleReconnect();
         }
     }
+    #endregion
+
+    // #region Initialization
+    // private void Initialize()
+    // {
+    //     // Register core message handlers
+    //     NetworkEvents.OnMessageReceived += HandleCoreMessages;
+    //     NetworkEvents.OnConnectionStatusChanged += HandleConnectionChange;
+    // }
+
+    // private void HandleCoreMessages(NetworkMessage message)
+    // {
+    //     // Handle system-critical messages here
+    //     switch (message.MessageType)
+    //     {
+    //         // case "Kick":
+    //         //     HandleKickMessage((KickMessage)message);
+    //         //     break;
+    //         case "Ping":
+    //             HandlePingMessage((PingMessage)message);
+    //             break;
+    //     }
+    // }
+
+    // private void HandleConnectionChange(bool connected)
+    // {
+    //     // Update UI or game state
+    //     if (connected)
+    //     {
+    //         Debug.Log("Network connection established");
+    //     }
+    //     else
+    //     {
+    //         Debug.LogWarning("Network connection lost");
+    //     }
+    // }
+    // #endregion
+
+    // #region System Message Handlers
+    // private void HandleKickMessage(KickMessage message)
+    // {
+    //     Debug.Log($"Kicked from server: {message.Reason}");
+    //     Disconnect();
+    //     SceneLoader.LoadScene("MainMenu");
+    // }
+
+    // private void HandlePingMessage(PingMessage message)
+    // {
+    //     SendMessage(new PingMessage {
+    //         Timestamp = message.Timestamp
+    //     });
+    // }
+    // #endregion
 
     private void OnDestroy()
     {
-        _isConnected = false;
-        _receiveThread?.Abort();
-        _client?.Close();
+        Disconnect();
     }
 }

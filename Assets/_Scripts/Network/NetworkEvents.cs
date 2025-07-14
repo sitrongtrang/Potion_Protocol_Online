@@ -1,15 +1,17 @@
-using System;
 using UnityEngine.Events;
-
-[Serializable]
-public class NetworkMessageEvent : UnityEvent<NetworkMessage> {}
 
 public static class NetworkEvents
 {
-    public static event Action<NetworkMessage> OnNetworkMessageReceived;
+    public static event UnityAction<NetworkMessage> OnMessageReceived;
+    public static event UnityAction<bool> OnConnectionStatusChanged;
 
     public static void InvokeMessageReceived(NetworkMessage message)
     {
-        OnNetworkMessageReceived?.Invoke(message);
+        OnMessageReceived?.Invoke(message);
+    }
+
+    public static void InvokeConnectionStatusChanged(bool connected)
+    {
+        OnConnectionStatusChanged?.Invoke(connected);
     }
 }
