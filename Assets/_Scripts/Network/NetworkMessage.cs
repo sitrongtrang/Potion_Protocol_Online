@@ -5,10 +5,10 @@ using UnityEngine;
 public abstract class NetworkMessage
 {
     public string SenderId;
-    public string MessageType { get; protected set; }
+    public short MessageType { get; protected set; }
     public double Timestamp;
 
-    protected NetworkMessage(string messageType)
+    protected NetworkMessage(short messageType)
     {
         MessageType = messageType;
         Timestamp = Time.time;

@@ -3,61 +3,61 @@ public static class NetworkMessageTypes
     // Client -> Server Messages
     public static class Input
     {
-        public const string PlayerMove = "PlayerMoveInput";
-        public const string PlayerPickup = "PlayerPickupInput";
-        public const string PlayerDrop = "PlayerDropInput";
-        public const string PlayerTransferToStation = "PlayerTransferToStationInput";
-        public const string PlayerAttack = "PlayerAttackInput";
-        public const string PlayerCraft = "PlayerCraftInput";
-        public const string PlayerSubmit = "PlayerSubmitInput";
+        public const short PlayerMove = -1;
+        public const short PlayerPickup = -1;
+        public const short PlayerDrop = -1;
+        public const short PlayerTransferToStation = -1;
+        public const short PlayerAttack = -1;
+        public const short PlayerCraft = -1;
+        public const short PlayerSubmit = -1;
     }
 
     // Server -> Client Messages
     public static class Player
     {
-        public const string Connected = "PlayerConnected";
-        public const string Disconnected = "PlayerDisconnected";
-        public const string Movement = "PlayerMovement";
-        public const string Inventory = "PlayerInventoryAction";
-        public const string Attack = "PlayerAttack";
-        public const string Craft = "PlayerCraft";
-        public const string Submit = "PlayerSubmit";
+        public const short Connected = -1;
+        public const short Disconnected = -1;
+        public const short Movement = -1;
+        public const short Inventory = -1;
+        public const short Attack = -1;
+        public const short Craft = -1;
+        public const short Submit = -1;
     }
 
     public static class Station
     {
-        public const string Update = "StationUpdate";
-        public const string Craft = "StationCraft";
+        public const short Update = -1;
+        public const short Craft = -1;
     }
 
     public static class Item
     {
-        public const string Drop = "ItemDrop";
+        public const short Drop = -1;
     }
 
     public static class Enemy
     {
-        public const string Spawn = "EnemySpawn";
-        public const string Move = "EnemyMove";
-        public const string Death = "EnemyDeath";
+        public const short Spawn = -1;
+        public const short Move = -1;
+        public const short Death = -1;
     }
 
     public static class Resource
     {
-        public const string Spawn = "ResourceSpawn";
-        public const string Harvested = "ResourceHarvested";
+        public const short Spawn = -1;
+        public const short Harvested = -1;
     }
 
     public static class GameState
     {
-        public const string ScoreUpdate = "GameScoreUpdate";
-        public const string TimeUpdate = "GameTimeUpdate";
+        public const short ScoreUpdate = -1;
+        public const short TimeUpdate = -1;
     }
 
     public static class System
     {
-        public const string Ping = "Ping";
-        public const string Pong = "Pong";
-        public const string Kick = "Kick";
+        public const short Ping = -1;
+        public const short Pong = -1;
+        public const short Kick = -1;
     }
 }
