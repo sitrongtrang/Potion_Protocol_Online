@@ -9,6 +9,8 @@ public class NetworkManager : MonoBehaviour
     public static NetworkManager Instance { get; private set; }
 
     [Header("Connection Settings")]
+    [SerializeField] private string _ip = "127.0.0.1";
+    [SerializeField] private int _port = 9000;
     [SerializeField] private float _reconnectDelay = 5f;
     private TcpClient _client;
     private NetworkStream _stream;
@@ -28,6 +30,11 @@ public class NetworkManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    private void Start()
+    {
+        ConnectToServer(_ip, _port);
     }
 
     public void ConnectToServer(string ip, int port)
