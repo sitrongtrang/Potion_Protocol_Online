@@ -3,10 +3,11 @@ public static class NetworkMessageTypes
     // Client -> Server Messages
     public static class Input
     {
-        public const short PlayerMove = 1;
+        public const short PlayerAuthTest = 0;
+        public const short PlayerMove = 4;
         public const short PlayerPickup = 2;
         public const short PlayerDrop = 3;
-        public const short PlayerTransferToStation = 4;
+        public const short PlayerTransferToStation = 100;
         public const short PlayerAttack = 5;
         public const short PlayerCraft = 6;
         public const short PlayerSubmit = 7;

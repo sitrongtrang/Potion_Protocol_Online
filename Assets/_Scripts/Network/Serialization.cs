@@ -16,17 +16,22 @@ public static class Serialization
     {
         int messageId = GenerateMessageId?.Invoke(message) ?? UnityEngine.Random.Range(1, int.MaxValue);
 
-        string json = JsonUtility.ToJson(message);
-        byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
+        // Correctly wrap payload
+        string payloadJson = JsonUtility.ToJson(message);
+        string wrappedJson = "{\"payload\":" + payloadJson + "}";
+        byte[] jsonBytes = Encoding.UTF8.GetBytes(wrappedJson);
 
-        int bodyLength = 2 + 4 + jsonBytes.Length; // methodType + messageId + payload
+        int bodyLength = 2 + 4 + jsonBytes.Length; // methodType (short) + messageId (int) + payload
         using MemoryStream stream = new();
-        using BinaryWriter writer = new(stream);
+        using BinaryWriter writer = new(stream)
+        {
+            // Little endian by default in .NET, same as Java ByteBuffer unless explicitly set
+        };
 
-        writer.Write((short)bodyLength);
-        writer.Write(message.MessageType);
-        writer.Write(messageId);
-        writer.Write(jsonBytes);
+        writer.Write((short)bodyLength);               // total body length
+        writer.Write(message.MessageType);             // short
+        writer.Write(messageId);                       // int (4 bytes)
+        writer.Write(jsonBytes);                       // UTF-8 payload
 
         return stream.ToArray();
     }

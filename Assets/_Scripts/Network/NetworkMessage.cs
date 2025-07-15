@@ -17,6 +17,12 @@ public abstract class NetworkMessage
 
 #region Client -> Server Messages (Input)
 [Serializable]
+public class PlayerAuthInputMessage : NetworkMessage
+{
+    public string token;
+    public PlayerAuthInputMessage() : base(NetworkMessageTypes.Input.PlayerAuthTest) { }
+}
+[Serializable]
 public class PlayerMoveInputMessage : NetworkMessage
 {
     public Vector2 CurrentPosition;
