@@ -36,7 +36,7 @@ public class StationController : MonoBehaviour
         {
             ItemDropMessage dropMessage = message as ItemDropMessage;
             ItemConfig item = GetItemById(dropMessage.ItemId);
-            SpawnItem(item, dropMessage.Position);
+            ItemPool.Instance.SpawnItem(item, dropMessage.Position);
         }
     }
 
@@ -49,10 +49,5 @@ public class StationController : MonoBehaviour
     private ItemConfig GetItemById(string id)
     {
         return null;
-    }
-
-    private void SpawnItem(ItemConfig item, Vector2 position)
-    {
-        return;
     }
 }
