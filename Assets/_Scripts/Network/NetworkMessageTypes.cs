@@ -27,6 +27,7 @@ public static class NetworkMessageTypes
     public static class Station
     {
         public const string Update = "StationUpdate";
+        public const string Craft = "StationCraft";
     }
 
     public static class Item

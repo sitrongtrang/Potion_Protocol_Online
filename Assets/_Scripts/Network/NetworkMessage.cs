@@ -174,6 +174,15 @@ public class StationUpdateMessage : NetworkMessage
 }
 
 [Serializable]
+public class StationCraftMessage : NetworkMessage
+{
+    public int StationId;
+    public float CraftTime;
+
+    public StationCraftMessage() : base(NetworkMessageTypes.Station.Update) { }
+}
+
+[Serializable]
 public class ItemDropMessage : NetworkMessage
 {
     public string ItemId;
