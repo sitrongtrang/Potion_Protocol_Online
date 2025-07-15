@@ -192,5 +192,7 @@ public class NetworkManager : MonoBehaviour
     private void OnDestroy()
     {
         Disconnect();
+        // NetworkEvents.OnMessageReceived -= HandleCoreMessages;
+        // NetworkEvents.OnConnectionStatusChanged -= HandleConnectionChange;
     }
 }
