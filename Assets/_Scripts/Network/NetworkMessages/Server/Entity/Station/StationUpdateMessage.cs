@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 [Serializable]
 public class StationUpdateMessage : ServerMessage
@@ -7,6 +8,7 @@ public class StationUpdateMessage : ServerMessage
     public string[] ItemIds;
     public bool CraftSuccess;
     public string CraftedItemId;
+    public Vector2 DropPosition;
 
     public StationUpdateMessage() : base(NetworkMessageTypes.Station.Update) { }
 }

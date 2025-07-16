@@ -1,53 +1,72 @@
-// using System.Collections;
-// using System.Collections.Generic;
-// using UnityEditorInternal.Profiling.Memory.Experimental;
-// using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-// public class StationController : MonoBehaviour
-// {
-//     private List<ItemConfig> _items;
+public class StationController : MonoBehaviour
+{
+    public string StationId { get; private set; }
+    private List<ItemConfig> _items;
 
-//     public void Initialize()
-//     {
-//         _items.Clear();
-//         NetworkEvents.OnMessageReceived += HandleNetworkMessage;
-//     }
+    public void Initialize()
+    {
+        _items.Clear();
+        NetworkEvents.OnMessageReceived += HandleNetworkMessage;
+    }
 
-//     public void HandleNetworkMessage(ServerMessage message)
-//     {
-//         if (message.MessageType == NetworkMessageTypes.Station.Update)
-//         {
-//             StationUpdateMessage updateMessage = message as StationUpdateMessage;
-//             if (updateMessage == null) return;
-//             for (int i = 0; i < updateMessage.ItemIds.Length; i++)
-//             {
-//                 _items[i] = GetItemById(updateMessage.ItemIds[i]);
-//             }
-//             if (_items.Count > updateMessage.ItemIds.Length)
-//                 _items.RemoveRange(updateMessage.ItemIds.Length, _items.Count - updateMessage.ItemIds.Length);
-//         }
-//         else if (message.MessageType == NetworkMessageTypes.Station.Craft)
-//         {
-//             StationCraftMessage craftMessage = message as StationCraftMessage;
-//             if (craftMessage == null) return;
-//             StartCoroutine(WaitForCraft(craftMessage.CraftTime));
-//         }
-//         else if (message.MessageType == NetworkMessageTypes.Item.Drop)
-//         {
-//             ItemDropMessage dropMessage = message as ItemDropMessage;
-//             ItemConfig item = GetItemById(dropMessage.ItemId);
-//             ItemPool.Instance.SpawnItem(item, dropMessage.Position);
-//         }
-//     }
+    public void HandleNetworkMessage(ServerMessage message)
+    {
+        var result = message.MessageType switch
+        {
+            NetworkMessageTypes.Station.Update => HandleStationUpdate(message),
+            NetworkMessageTypes.Station.Craft => HandleStationCraft(message),
+            _ => null,
+        };
+    }
 
-//     private IEnumerator WaitForCraft(float craftTime)
-//     {
-//         // TODO: add progress bar
-//         yield return new WaitForSeconds(craftTime);
-//     }
+    private object HandleStationUpdate(ServerMessage message)
+    {
+        var updateMessage = (StationUpdateMessage)message;
+        if (updateMessage == null) return null;
 
-//     private ItemConfig GetItemById(string id)
-//     {
-//         return null;
-//     }
-// }
+        if (_items.Count > updateMessage.ItemIds.Length)
+            _items.RemoveRange(updateMessage.ItemIds.Length, _items.Count - updateMessage.ItemIds.Length);
+
+        else
+        {
+            for (int i = _items.Count; i < updateMessage.ItemIds.Length; i++)
+            {
+                var itemConfig = ItemPool.Instance.GetItemById(updateMessage.ItemIds[i]).Config;
+                if (itemConfig != null)
+                {
+                    _items.Add(itemConfig);
+                }
+            }
+        }
+
+        if (updateMessage.CraftSuccess)
+        {
+            var craftedItem = ItemPool.Instance.GetItemById(updateMessage.CraftedItemId);
+            if (craftedItem != null)
+            {
+                ItemPool.Instance.SpawnItem(craftedItem.Config, updateMessage.DropPosition);
+            }
+        }
+
+        return null;
+    }
+
+    private object HandleStationCraft(ServerMessage message)
+    {
+        var craftMessage = (StationCraftMessage)message;
+        if (craftMessage == null) return null;
+
+        StartCoroutine(WaitForCraft(craftMessage.CraftTime));
+        return null;
+    }
+
+    private IEnumerator WaitForCraft(float craftTime)
+    {
+        // TODO: add progress bar
+        yield return new WaitForSeconds(craftTime);
+    }
+}

@@ -29,6 +29,7 @@ public static class NetworkMessageTypes
         public const short Attack = 12;
         public const short Craft = 13;
         public const short Submit = 14;
+        public const short Collide = 102;
     }
 
     public static class Station

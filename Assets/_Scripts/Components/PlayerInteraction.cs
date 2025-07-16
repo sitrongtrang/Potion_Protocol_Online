@@ -1,50 +1,50 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerInteraction
 {
-
     [SerializeField] private PlayerController _player;
     private PlayerInventory _playerInventory;
     private InputManager _inputManager;
-    private InputAction[] _inputAction;
-
-    
-    private List<GameObject> _itemsInCollision = new List<GameObject>();
+    private List<Vector2> _itemsInCollision = new();
+    private Vector2 _nearbyStation;
+    private Vector2 _nearbySubmissionPoint;
+    private Vector2 _nearbyCraftPoint;
 
     public void Initialize(PlayerController player, InputManager inputManager)
     {
         _player = player;
         _inputManager = inputManager;
+        _playerInventory = player.Inventory;
 
-        _inputAction = new InputAction[GameConstants.MaxSlot] {
-            _inputManager.controls.Player.ChooseSlot1,
-            _inputManager.controls.Player.ChooseSlot2,
-            _inputManager.controls.Player.ChooseSlot3,
-            _inputManager.controls.Player.ChooseSlot4,
-            _inputManager.controls.Player.ChooseSlot5
-        };
-
-        for (int i = 0; i < GameConstants.MaxSlot; i++)
-        {
-            int index = i;
-            _inputAction[i].performed += ctx => _playerInventory.ChooseSlot(index);
-        }
-
-        _inputManager.controls.Player.Nextslot.performed += ctx => _playerInventory.NextSlot();
         _inputManager.controls.Player.Pickup.performed += ctx => OnPickupPerformed();
         _inputManager.controls.Player.Drop.performed += ctx => OnDropPerformed();
         _inputManager.controls.Player.Transfer.performed += ctx => OnTransferPerformed();
         _inputManager.controls.Player.Submit.performed += ctx => OnSubmitPerformed();
         _inputManager.controls.Player.Craft.performed += ctx => OnCraftPerformed();
+
+        _itemsInCollision.Clear();
+        _nearbyStation = Vector2.positiveInfinity;
+        _nearbySubmissionPoint = Vector2.positiveInfinity;
+        _nearbyCraftPoint = Vector2.positiveInfinity;
+
+        NetworkEvents.OnMessageReceived += HandleNetworkMessage;
+    }
+
+    private void HandleNetworkMessage(ServerMessage message)
+    {
+        var result = message.MessageType switch
+        {
+            NetworkMessageTypes.Player.Collide => HandlePlayerCollide(message),
+            _ => null
+        };
     }
 
     private void OnPickupPerformed()
     {
         if (_itemsInCollision.Count == 0)
         {
-            Debug.LogWarning("No items in collision to pick up.");
+            Debug.LogWarning("No items nearby to pick up.");
             return;
         }
 
@@ -84,6 +84,12 @@ public class PlayerInteraction
 
     private void OnTransferPerformed()
     {
+        if (_nearbyStation == Vector2.positiveInfinity)
+        {
+            Debug.LogWarning("No stations nearby to transfer item.");
+            return;
+        }
+
         int idx = _playerInventory.GetRemoveSlot();
         if (idx < 0 || idx >= GameConstants.MaxSlot)
         {
@@ -102,6 +108,12 @@ public class PlayerInteraction
 
     private void OnSubmitPerformed()
     {
+        if (_nearbySubmissionPoint == Vector2.positiveInfinity)
+        {
+            Debug.LogWarning("No submission point nearby to submit item.");
+            return;
+        }
+
         int idx = _playerInventory.GetRemoveSlot();
         if (idx < 0 || idx >= GameConstants.MaxSlot)
         {
@@ -120,6 +132,12 @@ public class PlayerInteraction
 
     private void OnCraftPerformed()
     {
+        if (_nearbyCraftPoint == Vector2.positiveInfinity)
+        {
+            Debug.LogWarning("No craft point nearby to craft item.");
+            return;
+        }
+
         PlayerCraftInputMessage message = new PlayerCraftInputMessage
         {
             CurrentPosition = _player.transform.position,
@@ -135,16 +153,93 @@ public class PlayerInteraction
         {
             if (collision.CompareTag(collideableTag[i]))
             {
-                PlayerCollideMessage message = new PlayerCollideMessage
+                PlayerCollideInputMessage message = new PlayerCollideInputMessage
                 {
-                    SenderId = _player.PlayerId,
                     Tag = collision.tag,
                     IsEntering = isEntering,
+                    CurrentPosition = _player.transform.position,
                     CollisionPosition = collision.transform.position
                 };
                 NetworkManager.Instance.SendMessage(message);
                 break;
             }
         }
+    }
+
+    private void OnCollideItem(Vector2 itemPosition, bool isEntering)
+    {
+        if (isEntering)
+        {
+            if (_itemsInCollision.Contains(itemPosition))
+            {
+                Debug.LogWarning("Item already in collision list.");
+                return;
+            }
+            _itemsInCollision.Add(itemPosition);
+        }
+        else
+        {
+            _itemsInCollision.Remove(itemPosition);
+        }
+    }
+
+    private void OnCollideStation(Vector2 stationPosition, bool isEntering)
+    {
+        if (isEntering)
+        {
+            _nearbyStation = stationPosition;
+        }
+        else
+        {
+            _nearbyStation = Vector2.positiveInfinity;
+        }
+    }
+
+    private void OnCollideSubmissionPoint(Vector2 submissionPointPosition, bool isEntering)
+    {
+        if (isEntering)
+        {
+            _nearbySubmissionPoint = submissionPointPosition;
+        }
+        else
+        {
+            _nearbySubmissionPoint = Vector2.positiveInfinity;
+        }
+    }
+
+    private void OnCollideCraftPoint(Vector2 craftPointPosition, bool isEntering)
+    {
+        if (isEntering)
+        {
+            _nearbyCraftPoint = craftPointPosition;
+        }
+        else
+        {
+            _nearbyCraftPoint = Vector2.positiveInfinity;
+        }
+    }
+
+    private object HandlePlayerCollide(ServerMessage message)
+    {
+        var collideMessage = (PlayerCollideMessage)message;
+        if (collideMessage == null) return null;
+
+        switch (collideMessage.Tag)
+        {
+            case "Item":
+                OnCollideItem(collideMessage.CollisionPosition, collideMessage.IsEntering);
+                break;
+            case "Station":
+                OnCollideStation(collideMessage.CollisionPosition, collideMessage.IsEntering);
+                break;
+            case "SubmissionPoint":
+                OnCollideSubmissionPoint(collideMessage.CollisionPosition, collideMessage.IsEntering);
+                break;
+            case "CraftPoint":
+                OnCollideCraftPoint(collideMessage.CollisionPosition, collideMessage.IsEntering);
+                break;
+        }
+
+        return null;
     }
 }

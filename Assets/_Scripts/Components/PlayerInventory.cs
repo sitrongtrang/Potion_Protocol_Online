@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerInventory
 {
     [SerializeField] private PlayerController _player;
+    private InputManager _inputManager;
+    private InputAction[] _inputAction;
     private ItemConfig[] items = new ItemConfig[GameConstants.MaxSlot];
     private int _choosingSlot = 0;
     public int ChoosingSlot
@@ -20,11 +23,38 @@ public class PlayerInventory
     public event Action OnSlotChanged;
     private bool _isAutoFocus = true; // Auto focus mode, if true, will choose the current slot when adding item
 
-    public void Initialize(PlayerController player)
+    public void Initialize(PlayerController player, InputManager inputManager)
     {
         _player = player;
+        _inputManager = inputManager;
+
+        _inputAction = new InputAction[GameConstants.MaxSlot] {
+            _inputManager.controls.Player.ChooseSlot1,
+            _inputManager.controls.Player.ChooseSlot2,
+            _inputManager.controls.Player.ChooseSlot3,
+            _inputManager.controls.Player.ChooseSlot4,
+            _inputManager.controls.Player.ChooseSlot5
+        };
+
+        for (int i = 0; i < GameConstants.MaxSlot; i++)
+        {
+            int index = i;
+            _inputAction[i].performed += ctx => ChooseSlot(index);
+        }
+
+        _inputManager.controls.Player.Nextslot.performed += ctx => NextSlot();
+        
         _isAutoFocus = true; // TODO: Make this configurable in the UI
         NetworkEvents.OnMessageReceived += HandleNetworkMessage;
+    }
+    
+    private void HandleNetworkMessage(ServerMessage message)
+    {
+        var result = message.MessageType switch
+        {
+            NetworkMessageTypes.Player.Inventory => HandlePlayerInventory(message),
+            _ => null
+        };
     }
 
     public void ChooseSlot(int index)
@@ -43,7 +73,7 @@ public class PlayerInventory
     public int GetAddSlot()
     {
         int idx = -1;
-        // If choosing slot is empty, put the item into that slot; else put in the first slot that is empty
+        // If choosing slot is empty, choose that slot to add; else add to the first slot that is empty
         if (items[_choosingSlot] == null) idx = _choosingSlot;
         else idx = FindEmptySlot();
         return idx;
@@ -55,19 +85,10 @@ public class PlayerInventory
         return _choosingSlot;
     }
 
-    public void HandleNetworkMessage(ServerMessage message)
-    {
-        var result = message.MessageType switch
-        {
-            NetworkMessageTypes.Player.Inventory => HandlePlayerInventory(message),
-            _ => throw new ArgumentOutOfRangeException()
-        };
-    }
-
     public object HandlePlayerInventory(ServerMessage message)
     {
         var inventoryMessage = (PlayerInventoryMessage)message;
-        if (inventoryMessage.ReceiverId != _player.PlayerId) return null;
+        if (inventoryMessage == null) return null;
 
         if (inventoryMessage.SlotIndex < 0 || inventoryMessage.SlotIndex >= GameConstants.MaxSlot)
         {
@@ -113,7 +134,7 @@ public class PlayerInventory
         }
 
         // Simulate item add
-        ItemController itemToAdd = ItemPool.Instance.GetItemById(itemId); // TODO: find a way to get item by ID
+        ItemController itemToAdd = ItemPool.Instance.GetItemById(itemId);
         if (itemToAdd == null)
         {
             Debug.LogWarning($"Item {itemId} not found.");
@@ -122,18 +143,12 @@ public class PlayerInventory
 
         items[slotIndex] = itemToAdd.Config;
         if (_isAutoFocus) ChoosingSlot = slotIndex;
-        Debug.Log($"Added up item {itemId} into slot {slotIndex + 1}");
+        Debug.Log($"Added up item {itemToAdd.Config.Name} into slot {slotIndex + 1}");
         return itemToAdd;
     }
 
     private object RemoveItem(string itemId, int slotIndex)
     {
-        // int idx = Array.FindIndex(items, item => item != null && item.Id == itemId);
-        // if (idx < 0)
-        // {
-        //     Debug.LogWarning($"Item {itemId} not found in inventory.");
-        //     return null;
-        // }
         if (slotIndex < 0 || slotIndex >= GameConstants.MaxSlot || items[slotIndex] == null)
         {
             Debug.LogWarning("Invalid slot index for drop.");
@@ -149,7 +164,7 @@ public class PlayerInventory
 
         // Simulate removing the item
         items[slotIndex] = null; // Remove the item from inventory
-        Debug.Log($"Removed up item {itemId} in slot {slotIndex + 1}");
+        Debug.Log($"Removed up item {itemToRemove.Config.Name} in slot {slotIndex + 1}");
         return itemToRemove;
     }
 

@@ -3,11 +3,23 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public string PlayerId { get; private set; }
+    private InputManager _inputManager;
+    public PlayerInventory Inventory { get; private set; }
+    public PlayerInteraction Interaction { get; private set; }
+
     private Vector2 _newPosition;
-    void Start()
+
+    public void Initialize(InputManager inputManager)
     {
+        Inventory = new PlayerInventory();
+        Interaction = new PlayerInteraction();
+
+        Inventory.Initialize(this, inputManager);
+        Interaction.Initialize(this, inputManager);
+
         NetworkEvents.OnMessageReceived += HandleNetworkMessage;
     }
+
     void Update()
     {
         var x = Input.GetAxisRaw("Horizontal");
