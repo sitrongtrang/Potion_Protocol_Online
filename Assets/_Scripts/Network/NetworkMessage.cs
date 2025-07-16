@@ -130,7 +130,6 @@ public class PlayerAuthSucessMessage : ServerMessage
 }
 public class PlayerConnectedMessage : ServerMessage
 {
-    public int PlayerId;
     public string PlayerName;
     public Vector3 SpawnPosition;
 
@@ -140,15 +139,12 @@ public class PlayerConnectedMessage : ServerMessage
 [Serializable]
 public class PlayerDisconnectedMessage : ServerMessage
 {
-    public int PlayerId;
-
     public PlayerDisconnectedMessage() : base(NetworkMessageTypes.Player.Disconnected) { }
 }
 
 [Serializable]
 public class PlayerMoveMessage : ServerMessage
 {
-    public string PlayerId;
     public Vector2 NewPosition;
     public Vector2 NewMovementDirection;
     public bool IsDashing;
@@ -159,7 +155,6 @@ public class PlayerMoveMessage : ServerMessage
 [Serializable]
 public class PlayerInventoryMessage : ServerMessage
 {
-    public string PlayerId;
     public string[] InventoryItems;
     public int SlotIndex;
     public string AcTionType; // Pickup, Drop, Transfer, or Submit
@@ -172,7 +167,6 @@ public class PlayerInventoryMessage : ServerMessage
 [Serializable]
 public class PlayerAttackMessage : ServerMessage
 {
-    public string PlayerId;
     public string[] TargetTypes;
     public int[] TargetIds;
     public Vector2 AttackDirection;
@@ -183,7 +177,6 @@ public class PlayerAttackMessage : ServerMessage
 [Serializable]
 public class PlayerCraftMessage : ServerMessage
 {
-    public string PlayerId;
     public int StationId;
     public string[] InputItems;
     public bool Success;
@@ -195,7 +188,6 @@ public class PlayerCraftMessage : ServerMessage
 [Serializable]
 public class PlayerSubmitMessage : ServerMessage
 {
-    public string PlayerId;
     public string ItemId;
     public int SubmissionPointId;
 
@@ -287,7 +279,6 @@ public class ResourceHarvestedMessage : ServerMessage
 [Serializable]
 public class GameScoreUpdateMessage : ServerMessage
 {
-    public string PlayerId;
     public int ScoreChange;
     public int NewTotalScore;
 

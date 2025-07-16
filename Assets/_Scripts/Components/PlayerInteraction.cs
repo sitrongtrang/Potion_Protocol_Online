@@ -137,7 +137,7 @@ public class PlayerInteraction
             {
                 PlayerCollideMessage message = new PlayerCollideMessage
                 {
-                    PlayerId = _player.PlayerId,
+                    SenderId = _player.PlayerId,
                     Tag = collision.tag,
                     IsEntering = isEntering,
                     CollisionPosition = collision.transform.position
