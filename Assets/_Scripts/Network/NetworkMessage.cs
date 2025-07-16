@@ -105,18 +105,18 @@ public class PlayerSubmitInputMessage : ClientMessage
 
     public PlayerSubmitInputMessage() : base(NetworkMessageTypes.Input.PlayerTrySubmit) { }
 }
-#endregion
 
 [Serializable]
-public class PlayerCollideMessage : NetworkMessage
+public class PlayerCollideMessage : ClientMessage
 {
-    public string PlayerId;
     public string Tag;
     public bool IsEntering; // true for OnTriggerEnter2D, false for OnTriggerExit2D
     public Vector2 CollisionPosition;
 
-    public PlayerCollideMessage() : base(NetworkMessageTypes.Input.PlayerCollide) { }
+    public PlayerCollideMessage() : base(NetworkMessageTypes.Input.PlayerTryCollide) { }
 }
+#endregion
+
 
 #region Server -> Client Messages
 [Serializable]
