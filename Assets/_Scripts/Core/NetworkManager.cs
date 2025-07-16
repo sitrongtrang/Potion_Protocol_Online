@@ -12,15 +12,15 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] private string _ip = "127.0.0.1";
     [SerializeField] private int _port = 9000;
     [SerializeField] private float _reconnectDelay = 5f;
-    
+
     [Header("Network Components")]
     private TcpClient _client;
     private NetworkStream _stream;
     private Thread _receiveThread;
     private bool _isConnected = false;
-    
+
     [Header("Client Identification")]
-    private string _clientId = "A"; // Server-assigned ID
+    private string _clientId; // Server-assigned ID
     private string _sessionToken; // For reconnection
     private string _authToken;
     private bool _isAuthenticated;
@@ -45,8 +45,9 @@ public class NetworkManager : MonoBehaviour
     private void Initialize()
     {
         // Load saved session token if exists
-        _sessionToken = PlayerPrefs.GetString("SessionToken");
-        
+        // PlayerPrefs.DeleteAll();
+        // _sessionToken = PlayerPrefs.GetString("SessionToken");
+
     }
 
     private void Start() => ConnectToServer();
@@ -58,6 +59,7 @@ public class NetworkManager : MonoBehaviour
     #endregion
 
     #region Connection Management
+
     public void ConnectToServer()
     {
         if (_isConnected) return;
@@ -76,7 +78,7 @@ public class NetworkManager : MonoBehaviour
 
             Debug.Log($"Connected to {_ip}:{_port}");
             NetworkEvents.InvokeConnectionStatusChanged(true);
-            
+
             // Start authentication process
             // Authenticate();
         }
@@ -87,13 +89,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public void TestAuthenticate(string token)
-    {
-        _authToken = token;
-        Authenticate();
-    }
-    
-    private void Authenticate()
+    public void Authenticate()
     {
         if (!string.IsNullOrEmpty(_sessionToken))
         {
@@ -119,7 +115,7 @@ public class NetworkManager : MonoBehaviour
         _isConnected = false;
         _isAuthenticated = false;
         _receiveThread?.Abort();
-        
+
         try
         {
             _stream?.Close();
@@ -184,14 +180,14 @@ public class NetworkManager : MonoBehaviour
         // First handle system messages
         if (HandleSystemMessage(message))
             return;
-            
+
         // Then dispatch to game systems
         NetworkEvents.InvokeMessageReceived(message);
     }
 
     public void SendMessage(ClientMessage message)
     {
-        if (!_isConnected || _stream == null || !_stream.CanWrite) 
+        if (!_isConnected || _stream == null || !_stream.CanWrite)
             return;
 
         // Add client ID to all outgoing messages if authenticated
@@ -226,15 +222,11 @@ public class NetworkManager : MonoBehaviour
             case NetworkMessageTypes.System.AuthSuccess:
                 HandleAuthSuccess((AuthSuccessMessage)message);
                 return true;
-                
+
             case NetworkMessageTypes.System.Kick:
                 HandleKickMessage((KickMessage)message);
                 return true;
-                
-            case NetworkMessageTypes.System.ClientIdAssignment:
-                HandleClientIdAssignment((ClientIdMessage)message);
-                return true;
-                
+
             default:
                 return false;
         }
@@ -244,26 +236,38 @@ public class NetworkManager : MonoBehaviour
     {
         _isAuthenticated = true;
         _sessionToken = message.ReconnectToken;
-        PlayerPrefs.SetString("SessionToken", _sessionToken);
-        
+        // PlayerPrefs.SetString("SessionToken", _sessionToken);
+
         Debug.Log("Authentication successful");
     }
 
-    private void HandleClientIdAssignment(ClientIdMessage message)
+    private void HandlePlayerSpawn(PlayerSpawnMessage message)
     {
-        _clientId = message.AssignedId;
-        Debug.Log($"Assigned client ID: {_clientId}");
-        
-        // Now spawn the player
-        // NetworkEvents.InvokePlayerSpawnRequested(_clientId);
+        bool isLocal = message.NetworkId == _clientId;
+        NetworkEvents.InvokePlayerSpawnRequested(
+            message.NetworkId,
+            message.Position,
+            isLocal
+        );
     }
 
     private void HandleKickMessage(KickMessage message)
     {
         Debug.Log($"Kicked from server: {message.Reason}");
-        PlayerPrefs.DeleteKey("SessionToken");
+        // PlayerPrefs.DeleteKey("SessionToken");
         Disconnect();
         // Load menu scene or show disconnect UI
+    }
+    #endregion
+
+    #region Public
+    public void SetAuthenToken(string authToken)
+    {
+        _authToken = authToken;
+    }
+    public void SetClientId(string clientId)
+    {
+        _clientId = clientId;
     }
     #endregion
 }

@@ -7,6 +7,10 @@ public static class NetworkMessageTypes
         public const short PlayerTryReconnect = 1;
 
     }
+    public static class Pregame
+    {
+        public const short RequestSpawn = 900;
+    }
     public static class IngameInput
     {
         public const short PlayerTryMove = 4;
@@ -22,6 +26,7 @@ public static class NetworkMessageTypes
     // Server -> Client Messages
     public static class Player
     {
+        public const short Spawn = 1000;
         public const short Connected = 8;
         public const short Disconnected = 9;
         public const short Movement = 10;
@@ -67,9 +72,6 @@ public static class NetworkMessageTypes
     public static class System
     {
         public const short AuthSuccess = 0;
-
-        public const short ClientIdAssignment = 1;
-        
         public const short Ping = 25;
         public const short Pong = 26;
         public const short Kick = 27;
