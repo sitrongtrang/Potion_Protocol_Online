@@ -6,17 +6,29 @@ using UnityEngine;
 public class UnityMainThreadDispatcher : MonoBehaviour
 {
     private static readonly Queue<Action> _executionQueue = new();
-    private static UnityMainThreadDispatcher _instance = null;
+    private static UnityMainThreadDispatcher _instance;
 
-    public static UnityMainThreadDispatcher Instance()
+    public static UnityMainThreadDispatcher Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                Debug.LogError("UnityMainThreadDispatcher not initialized. " +
+                               "Make sure it exists in the scene at startup.");
+            }
+            return _instance;
+        }
+    }
+
+    public static void Initialize()
     {
         if (_instance == null)
         {
-            GameObject go = new("MainThreadDispatcher");
-            _instance = go.AddComponent<UnityMainThreadDispatcher>();
-            DontDestroyOnLoad(go);
+            var obj = new GameObject("MainThreadDispatcher");
+            _instance = obj.AddComponent<UnityMainThreadDispatcher>();
+            DontDestroyOnLoad(obj);
         }
-        return _instance;
     }
 
     public void Enqueue(Action action)

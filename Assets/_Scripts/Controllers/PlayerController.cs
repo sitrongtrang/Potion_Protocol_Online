@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -27,12 +26,12 @@ public class PlayerController : MonoBehaviour
         transform.position = _newPosition;
     }
 
-    private void HandleNetworkMessage(NetworkMessage message)
+    private void HandleNetworkMessage(ServerMessage message)
     {
         var result = message.MessageType switch
         {
             NetworkMessageTypes.Player.Movement => HandlePlayerMove(message),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => null
         };
     }
 

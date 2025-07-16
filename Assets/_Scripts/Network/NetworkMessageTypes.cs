@@ -3,14 +3,14 @@ public static class NetworkMessageTypes
     // Client -> Server Messages
     public static class Input
     {
-        public const short PlayerAuthTest = 0;
-        public const short PlayerMove = 4;
-        public const short PlayerPickup = 2;
-        public const short PlayerDrop = 3;
-        public const short PlayerTransferToStation = 100;
-        public const short PlayerAttack = 5;
-        public const short PlayerCraft = 6;
-        public const short PlayerSubmit = 7;
+        public const short PlayerTryAuth = 0;
+        public const short PlayerTryMove = 4;
+        public const short PlayerTryPickup = 2;
+        public const short PlayerTryDrop = 3;
+        public const short PlayerTryTransferToStation = 100;
+        public const short PlayerTryAttack = 5;
+        public const short PlayerTryCraft = 6;
+        public const short PlayerTrySubmit = 7;
     }
 
     // Server -> Client Messages
@@ -23,6 +23,11 @@ public static class NetworkMessageTypes
         public const short Attack = 12;
         public const short Craft = 13;
         public const short Submit = 14;
+    }
+
+    public static class Authorization
+    {
+        public const short AuthSuccess = 0;
     }
 
     public static class Station

@@ -13,7 +13,6 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] private string _ip = "127.0.0.1";
     [SerializeField] private int _port = 9000;
     [SerializeField] private float _reconnectDelay = 5f;
-    [SerializeField] private string _authToken;
     private TcpClient _client;
     private NetworkStream _stream;
     private Thread _receiveThread;
@@ -32,21 +31,13 @@ public class NetworkManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        UnityMainThreadDispatcher.Initialize();
     }
 
     private void Start()
     {
         ConnectToServer();
-    }
-
-    [ContextMenu("Test Auth")]
-    private void TestSendAuth()
-    {
-        SendMessage(new PlayerAuthInputMessage
-        {
-            token = _authToken
-        });
-
     }
 
     public void ConnectToServer()
@@ -95,7 +86,7 @@ public class NetworkManager : MonoBehaviour
 
     private void ScheduleReconnect()
     {
-        UnityMainThreadDispatcher.Instance().Enqueue(() =>
+        UnityMainThreadDispatcher.Instance.Enqueue(() =>
         {
             Invoke(nameof(ConnectToServer), _reconnectDelay);
         });
@@ -113,10 +104,10 @@ public class NetworkManager : MonoBehaviour
                 int bytesRead = _stream.Read(buffer, 0, buffer.Length);
                 if (bytesRead > 0)
                 {
-                    NetworkMessage message = Serialization.DeserializeMessage(buffer);
+                    ServerMessage message = Serialization.DeserializeMessage(buffer);
                     if (message != null)
                     {
-                        UnityMainThreadDispatcher.Instance().Enqueue(() =>
+                        UnityMainThreadDispatcher.Instance.Enqueue(() =>
                         {
                             NetworkEvents.InvokeMessageReceived(message);
                         });
@@ -128,7 +119,7 @@ public class NetworkManager : MonoBehaviour
                 if (_isConnected) // Only log if we expected to be connected
                 {
                     Debug.LogError($"Receive error: {e.Message}");
-                    UnityMainThreadDispatcher.Instance().Enqueue(() =>
+                    UnityMainThreadDispatcher.Instance.Enqueue(() =>
                     {
                         Disconnect();
                         ScheduleReconnect();
@@ -139,7 +130,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public void SendMessage(NetworkMessage message)
+    public void SendMessage(ClientMessage message)
     {
         if (!_isConnected || _stream == null || !_stream.CanWrite) 
             return;

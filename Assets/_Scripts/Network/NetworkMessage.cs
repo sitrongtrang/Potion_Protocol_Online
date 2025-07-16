@@ -4,97 +4,119 @@ using UnityEngine;
 [Serializable]
 public abstract class NetworkMessage
 {
-    public string SenderId;
     public short MessageType { get; protected set; }
-    public double Timestamp;
-
+    
     protected NetworkMessage(short messageType)
     {
         MessageType = messageType;
-        Timestamp = Time.time;
     }
 }
 
+public abstract class ClientMessage : NetworkMessage
+{
+    public string SenderId;
+    public double Timestamp;
+    protected ClientMessage(short messageType) : base(messageType) { Timestamp = Time.time; }
+}
+
+public abstract class ServerMessage : NetworkMessage
+{
+    public string ReceiverId;
+    public int StatusCode;
+    protected ServerMessage(short messageType) : base(messageType) { }
+}
+
+
+
 #region Client -> Server Messages (Input)
 [Serializable]
-public class PlayerAuthInputMessage : NetworkMessage
+public class PlayerAuthInputMessage : ClientMessage
 {
-    public string token;
-    public PlayerAuthInputMessage() : base(NetworkMessageTypes.Input.PlayerAuthTest) { }
+    [JsonProperty("token")]
+    public string Token;
+    public PlayerAuthInputMessage() : base(NetworkMessageTypes.Input.PlayerTryAuth) { }
 }
 [Serializable]
-public class PlayerMoveInputMessage : NetworkMessage
+public class PlayerMoveInputMessage : ClientMessage
 {
     public Vector2 CurrentPosition;
     public Quaternion CurrentRotation;
     public Vector2 MoveDirection;
     public bool DashKeyDown;
 
-    public PlayerMoveInputMessage() : base(NetworkMessageTypes.Input.PlayerMove) { }
+    public PlayerMoveInputMessage() : base(NetworkMessageTypes.Input.PlayerTryMove) { }
 }
 
 [Serializable]
-public class PlayerPickupInputMessage : NetworkMessage
+public class PlayerPickupInputMessage : ClientMessage
 {
     public Vector2 CurrentPosition;
     public int SelectedSlot;
     public bool PickupKeyDown;
 
-    public PlayerPickupInputMessage() : base(NetworkMessageTypes.Input.PlayerPickup) { }
+    public PlayerPickupInputMessage() : base(NetworkMessageTypes.Input.PlayerTryPickup) { }
 }
 
 [Serializable]
-public class PlayerDropInputMessage : NetworkMessage
+public class PlayerDropInputMessage : ClientMessage
 {
     public Vector2 CurrentPosition;
     public int SelectedSlot;
     public bool DropKeyDown;
 
-    public PlayerDropInputMessage() : base(NetworkMessageTypes.Input.PlayerDrop) { }
+    public PlayerDropInputMessage() : base(NetworkMessageTypes.Input.PlayerTryDrop) { }
 }
 
 [Serializable]
-public class PlayerTransferToStationInputMessage : NetworkMessage
+public class PlayerTransferToStationInputMessage : ClientMessage
 {
     public Vector2 CurrentPosition;
     public int SelectedSlot;
     public bool PutToStationKeyDown;
 
-    public PlayerTransferToStationInputMessage() : base(NetworkMessageTypes.Input.PlayerTransferToStation) { }
+    public PlayerTransferToStationInputMessage() : base(NetworkMessageTypes.Input.PlayerTryTransferToStation) { }
 }
 
 [Serializable]
-public class PlayerAttackInputMessage : NetworkMessage
+public class PlayerAttackInputMessage : ClientMessage
 {
     public Vector2 CurrentPosition;
     public Quaternion CurrentRotation;
     public bool AttackKeyDown;
 
-    public PlayerAttackInputMessage() : base(NetworkMessageTypes.Input.PlayerAttack) { }
+    public PlayerAttackInputMessage() : base(NetworkMessageTypes.Input.PlayerTryAttack) { }
 }
 
 [Serializable]
-public class PlayerCraftInputMessage : NetworkMessage
+public class PlayerCraftInputMessage : ClientMessage
 {
     public Vector2 CurrentPosition;
     public bool CraftKeyDown;
 
-    public PlayerCraftInputMessage() : base(NetworkMessageTypes.Input.PlayerCraft) { }
+    public PlayerCraftInputMessage() : base(NetworkMessageTypes.Input.PlayerTryCraft) { }
 }
 
 [Serializable]
-public class PlayerSubmitInputMessage : NetworkMessage
+public class PlayerSubmitInputMessage : ClientMessage
 {
     public Vector2 CurrentPosition;
     public bool SubmitKeyDown;
 
-    public PlayerSubmitInputMessage() : base(NetworkMessageTypes.Input.PlayerSubmit) { }
+    public PlayerSubmitInputMessage() : base(NetworkMessageTypes.Input.PlayerTrySubmit) { }
 }
 #endregion
 
 #region Server -> Client Messages
 [Serializable]
-public class PlayerConnectedMessage : NetworkMessage
+public class PlayerAuthSucessMessage : ServerMessage
+{
+    [JsonProperty("response")]
+    public string Response;
+    [JsonProperty("reconnectToken")]
+    public string ReconnectToken;
+    public PlayerAuthSucessMessage() : base(NetworkMessageTypes.Authorization.AuthSuccess) { }
+}
+public class PlayerConnectedMessage : ServerMessage
 {
     public int PlayerId;
     public string PlayerName;
@@ -104,7 +126,7 @@ public class PlayerConnectedMessage : NetworkMessage
 }
 
 [Serializable]
-public class PlayerDisconnectedMessage : NetworkMessage
+public class PlayerDisconnectedMessage : ServerMessage
 {
     public int PlayerId;
 
@@ -112,7 +134,7 @@ public class PlayerDisconnectedMessage : NetworkMessage
 }
 
 [Serializable]
-public class PlayerMoveMessage : NetworkMessage
+public class PlayerMoveMessage : ServerMessage
 {
     public string PlayerId;
     public Vector2 NewPosition;
@@ -123,7 +145,7 @@ public class PlayerMoveMessage : NetworkMessage
 }
 
 [Serializable]
-public class PlayerInventoryMessage : NetworkMessage
+public class PlayerInventoryMessage : ServerMessage
 {
     public string PlayerId;
     public string[] InventoryItems;
@@ -136,7 +158,7 @@ public class PlayerInventoryMessage : NetworkMessage
 }
 
 [Serializable]
-public class PlayerAttackMessage : NetworkMessage
+public class PlayerAttackMessage : ServerMessage
 {
     public string PlayerId;
     public string[] TargetTypes;
@@ -147,7 +169,7 @@ public class PlayerAttackMessage : NetworkMessage
 }
 
 [Serializable]
-public class PlayerCraftMessage : NetworkMessage
+public class PlayerCraftMessage : ServerMessage
 {
     public string PlayerId;
     public int StationId;
@@ -159,7 +181,7 @@ public class PlayerCraftMessage : NetworkMessage
 }
 
 [Serializable]
-public class PlayerSubmitMessage : NetworkMessage
+public class PlayerSubmitMessage : ServerMessage
 {
     public string PlayerId;
     public string ItemId;
@@ -169,7 +191,7 @@ public class PlayerSubmitMessage : NetworkMessage
 }
 
 [Serializable]
-public class StationUpdateMessage : NetworkMessage
+public class StationUpdateMessage : ServerMessage
 {
     public int StationId;
     public string[] ItemIds;
@@ -180,7 +202,7 @@ public class StationUpdateMessage : NetworkMessage
 }
 
 [Serializable]
-public class StationCraftMessage : NetworkMessage
+public class StationCraftMessage : ServerMessage
 {
     public int StationId;
     public float CraftTime;
@@ -189,7 +211,7 @@ public class StationCraftMessage : NetworkMessage
 }
 
 [Serializable]
-public class ItemDropMessage : NetworkMessage
+public class ItemDropMessage : ServerMessage
 {
     public string ItemId;
     public Vector2 Position;
@@ -198,7 +220,7 @@ public class ItemDropMessage : NetworkMessage
 }
 
 [Serializable]
-public class EnemySpawnMessage : NetworkMessage
+public class EnemySpawnMessage : ServerMessage
 {
     public int EnemyId;
     public string EnemyType;
@@ -210,7 +232,7 @@ public class EnemySpawnMessage : NetworkMessage
 }
 
 [Serializable]
-public class EnemyMoveMessage : NetworkMessage
+public class EnemyMoveMessage : ServerMessage
 {
     public int EnemyId;
     public Vector2 Position;
@@ -220,7 +242,7 @@ public class EnemyMoveMessage : NetworkMessage
 }
 
 [Serializable]
-public class EnemyDeathMessage : NetworkMessage
+public class EnemyDeathMessage : ServerMessage
 {
     public int EnemyId;
     public string KillerId;
@@ -231,7 +253,7 @@ public class EnemyDeathMessage : NetworkMessage
 }
 
 [Serializable]
-public class ResourceSpawnMessage : NetworkMessage
+public class ResourceSpawnMessage : ServerMessage
 {
     public int ResourceId;
     public string ResourceType;
@@ -241,7 +263,7 @@ public class ResourceSpawnMessage : NetworkMessage
 }
 
 [Serializable]
-public class ResourceHarvestedMessage : NetworkMessage
+public class ResourceHarvestedMessage : ServerMessage
 {
     public int ResourceId;
     public string HarvesterId;
@@ -251,7 +273,7 @@ public class ResourceHarvestedMessage : NetworkMessage
 }
 
 [Serializable]
-public class GameScoreUpdateMessage : NetworkMessage
+public class GameScoreUpdateMessage : ServerMessage
 {
     public string PlayerId;
     public int ScoreChange;
@@ -261,7 +283,7 @@ public class GameScoreUpdateMessage : NetworkMessage
 }
 
 [Serializable]
-public class GameTimeUpdateMessage : NetworkMessage
+public class GameTimeUpdateMessage : ServerMessage
 {
     public float RemainingGameTime;
     public int CurrentWave;
@@ -270,7 +292,7 @@ public class GameTimeUpdateMessage : NetworkMessage
 }
 
 [Serializable]
-public class PingMessage : NetworkMessage
+public class PingMessage : ServerMessage
 {
     public double SendTime;
 
@@ -278,7 +300,7 @@ public class PingMessage : NetworkMessage
 }
 
 [Serializable]
-public class PongMessage : NetworkMessage
+public class PongMessage : ServerMessage
 {
     public double OriginalPingTime;
 
@@ -286,7 +308,7 @@ public class PongMessage : NetworkMessage
 }
 
 [Serializable]
-public class KickMessage : NetworkMessage
+public class KickMessage : ServerMessage
 {
     public string Reason;
 
