@@ -100,11 +100,23 @@ public class PlayerCraftInputMessage : ClientMessage
 public class PlayerSubmitInputMessage : ClientMessage
 {
     public Vector2 CurrentPosition;
+    public int SelectedSlot;
     public bool SubmitKeyDown;
 
     public PlayerSubmitInputMessage() : base(NetworkMessageTypes.Input.PlayerTrySubmit) { }
 }
 #endregion
+
+[Serializable]
+public class PlayerCollideMessage : NetworkMessage
+{
+    public string PlayerId;
+    public string Tag;
+    public bool IsEntering; // true for OnTriggerEnter2D, false for OnTriggerExit2D
+    public Vector2 CollisionPosition;
+
+    public PlayerCollideMessage() : base(NetworkMessageTypes.Input.PlayerCollide) { }
+}
 
 #region Server -> Client Messages
 [Serializable]
@@ -150,7 +162,7 @@ public class PlayerInventoryMessage : ServerMessage
     public string PlayerId;
     public string[] InventoryItems;
     public int SlotIndex;
-    public string ActionType; // "Pickup", "Drop", "TransferToStation"
+    public string AcTionType; // Pickup, Drop, Transfer, or Submit
     public string ItemId;
     public Vector2 DropPosition;
 

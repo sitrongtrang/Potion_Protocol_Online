@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public string PlayerId { get; private set; }
     private Vector2 _newPosition;
     void Start()
     {
