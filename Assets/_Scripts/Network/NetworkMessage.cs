@@ -23,6 +23,7 @@ public abstract class ServerMessage : NetworkMessage
 {
     public string ReceiverId;
     public int StatusCode;
+    public double ServerTimeStamp;
     protected ServerMessage(short messageType) : base(messageType) { }
 }
 

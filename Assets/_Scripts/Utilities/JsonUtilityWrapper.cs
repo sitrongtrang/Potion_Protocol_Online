@@ -34,33 +34,51 @@ public static class JsonUtilityWrapper
         var result = new T();
         var type = typeof(T);
 
-        // Handle fields
+        // Process all fields including inherited ones
+        ProcessMembersRecursive(jsonDict, result, type);
+
+        return result;
+    }
+    
+    private static void ProcessMembersRecursive<T>(Dictionary<string, object> jsonDict, T obj, Type type)
+    {
+        // Base case for recursion
+        if (type == null || type == typeof(object))
+            return;
+
+        // First process parent class members
+        ProcessMembersRecursive(jsonDict, obj, type.BaseType);
+
+        // Handle fields (including non-public from parent classes)
         foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
-            ProcessMember(jsonDict, result, field.Name, field.FieldType, 
-                (obj, val) => field.SetValue(obj, val));
+            // Skip compiler-generated fields and backing fields for properties
+            if (field.IsDefined(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), false))
+                continue;
+
+            ProcessMember(jsonDict, obj, field.Name, field.FieldType, 
+                (o, val) => field.SetValue(o, val));
         }
 
         // Handle properties
         foreach (var prop in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
-            if (prop.CanWrite)
+            if (prop.CanWrite && prop.GetSetMethod(nonPublic: true) != null)
             {
-                ProcessMember(jsonDict, result, prop.Name, prop.PropertyType, 
-                    (obj, val) => prop.SetValue(obj, val, null));
+                ProcessMember(jsonDict, obj, prop.Name, prop.PropertyType, 
+                    (o, val) => prop.SetValue(o, val, null));
             }
         }
-
-        return result;
     }
 
     private static void ProcessMember<T>(Dictionary<string, object> jsonDict, T obj, 
         string memberName, Type memberType, Action<T, object> setter)
     {
         // Check for JsonProperty attribute
-        var memberInfo = obj.GetType().GetMember(memberName)[0];
-        var jsonProp = memberInfo.GetCustomAttribute<JsonPropertyAttribute>();
+        var memberInfo = GetMemberInfo(obj.GetType(), memberName);
+        if (memberInfo == null) return;
 
+        var jsonProp = memberInfo.GetCustomAttribute<JsonPropertyAttribute>();
         string jsonKey = jsonProp?.PropertyName ?? memberName;
 
         if (jsonDict.TryGetValue(jsonKey, out object value))
@@ -75,6 +93,21 @@ public static class JsonUtilityWrapper
                 Debug.LogWarning($"Failed to set {memberName}: {e.Message}");
             }
         }
+    }
+
+    private static MemberInfo GetMemberInfo(Type type, string memberName)
+    {
+        // Check current type and all base types
+        while (type != null && type != typeof(object))
+        {
+            var member = type.GetMember(memberName, 
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (member.Length > 0)
+                return member[0];
+            
+            type = type.BaseType;
+        }
+        return null;
     }
 
     #endregion
@@ -99,6 +132,9 @@ public static class JsonUtilityWrapper
 
     private static string ToJsonWithNaming(object obj, bool prettyPrint)
     {
+        if (obj == null)
+            return "null";
+
         var type = obj.GetType();
         var sb = new StringBuilder();
         sb.Append("{");
@@ -107,9 +143,31 @@ public static class JsonUtilityWrapper
         string newLine = prettyPrint ? "\n" : "";
         string indent = prettyPrint ? "  " : "";
 
+        // Process all members including inherited ones
+        SerializeMembersRecursive(sb, obj, type, ref first, prettyPrint, newLine, indent);
+
+        if (prettyPrint) sb.Append(newLine);
+        sb.Append("}");
+        return sb.ToString();
+    }
+
+    private static void SerializeMembersRecursive(StringBuilder sb, object obj, Type type, 
+        ref bool first, bool prettyPrint, string newLine, string indent)
+    {
+        // Base case for recursion
+        if (type == null || type == typeof(object))
+            return;
+
+        // First serialize parent class members
+        SerializeMembersRecursive(sb, obj, type.BaseType, ref first, prettyPrint, newLine, indent);
+
         // Handle fields
-        foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
+        foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
+            // Skip compiler-generated fields and backing fields for properties
+            if (field.IsDefined(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), false))
+                continue;
+
             if (!first) sb.Append(",");
             first = false;
 
@@ -123,9 +181,9 @@ public static class JsonUtilityWrapper
         }
 
         // Handle properties
-        foreach (var prop in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+        foreach (var prop in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
-            if (prop.CanRead && prop.CanWrite)
+            if (prop.CanRead && prop.GetGetMethod(nonPublic: true) != null)
             {
                 if (!first) sb.Append(",");
                 first = false;
@@ -139,11 +197,8 @@ public static class JsonUtilityWrapper
                 AppendJsonValue(sb, value, prettyPrint, indent);
             }
         }
-
-        if (prettyPrint) sb.Append(newLine);
-        sb.Append("}");
-        return sb.ToString();
     }
+
 
     private static string GetJsonName(MemberInfo member)
     {
