@@ -11,6 +11,7 @@ public static class NetworkMessageTypes
         public const short PlayerAttack = 5;
         public const short PlayerCraft = 6;
         public const short PlayerSubmit = 7;
+        public const short PlayerCollide = 101; 
     }
 
     // Server -> Client Messages
