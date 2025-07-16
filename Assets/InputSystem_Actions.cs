@@ -299,7 +299,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Combine"",
+                    ""name"": ""Craft"",
                     ""type"": ""Button"",
                     ""id"": ""6df1a899-8122-4ef5-9c0a-8bbb2cfe1c40"",
                     ""expectedControlType"": """",
@@ -864,7 +864,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Combine"",
+                    ""action"": ""Craft"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1486,7 +1486,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Drop = m_Player.FindAction("Drop", throwIfNotFound: true);
         m_Player_Submit = m_Player.FindAction("Submit", throwIfNotFound: true);
         m_Player_Transfer = m_Player.FindAction("Transfer", throwIfNotFound: true);
-        m_Player_Combine = m_Player.FindAction("Combine", throwIfNotFound: true);
+        m_Player_Craft = m_Player.FindAction("Craft", throwIfNotFound: true);
         m_Player_Exploit = m_Player.FindAction("Exploit", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
@@ -1604,7 +1604,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Drop;
     private readonly InputAction m_Player_Submit;
     private readonly InputAction m_Player_Transfer;
-    private readonly InputAction m_Player_Combine;
+    private readonly InputAction m_Player_Craft;
     private readonly InputAction m_Player_Exploit;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
@@ -1710,9 +1710,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Transfer => m_Wrapper.m_Player_Transfer;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Combine".
+        /// Provides access to the underlying input action "Player/Craft".
         /// </summary>
-        public InputAction @Combine => m_Wrapper.m_Player_Combine;
+        public InputAction @Craft => m_Wrapper.m_Player_Craft;
         /// <summary>
         /// Provides access to the underlying input action "Player/Exploit".
         /// </summary>
@@ -1812,9 +1812,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Transfer.started += instance.OnTransfer;
             @Transfer.performed += instance.OnTransfer;
             @Transfer.canceled += instance.OnTransfer;
-            @Combine.started += instance.OnCombine;
-            @Combine.performed += instance.OnCombine;
-            @Combine.canceled += instance.OnCombine;
+            @Craft.started += instance.OnCraft;
+            @Craft.performed += instance.OnCraft;
+            @Craft.canceled += instance.OnCraft;
             @Exploit.started += instance.OnExploit;
             @Exploit.performed += instance.OnExploit;
             @Exploit.canceled += instance.OnExploit;
@@ -1898,9 +1898,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Transfer.started -= instance.OnTransfer;
             @Transfer.performed -= instance.OnTransfer;
             @Transfer.canceled -= instance.OnTransfer;
-            @Combine.started -= instance.OnCombine;
-            @Combine.performed -= instance.OnCombine;
-            @Combine.canceled -= instance.OnCombine;
+            @Craft.started -= instance.OnCraft;
+            @Craft.performed -= instance.OnCraft;
+            @Craft.canceled -= instance.OnCraft;
             @Exploit.started -= instance.OnExploit;
             @Exploit.performed -= instance.OnExploit;
             @Exploit.canceled -= instance.OnExploit;
@@ -2366,12 +2366,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnTransfer(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Combine" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Craft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnCombine(InputAction.CallbackContext context);
+        void OnCraft(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Exploit" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

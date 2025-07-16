@@ -37,6 +37,7 @@ public class PlayerInteraction
         _inputManager.controls.Player.Drop.performed += ctx => OnDropPerformed();
         _inputManager.controls.Player.Transfer.performed += ctx => OnTransferPerformed();
         _inputManager.controls.Player.Submit.performed += ctx => OnSubmitPerformed();
+        _inputManager.controls.Player.Craft.performed += ctx => OnCraftPerformed();
     }
 
     private void OnPickupPerformed()
@@ -113,6 +114,16 @@ public class PlayerInteraction
             CurrentPosition = _player.transform.position,
             SelectedSlot = idx,
             SubmitKeyDown = true
+        };
+        NetworkManager.Instance.SendMessage(message);
+    }
+
+    private void OnCraftPerformed()
+    {
+        PlayerCraftInputMessage message = new PlayerCraftInputMessage
+        {
+            CurrentPosition = _player.transform.position,
+            CraftKeyDown = true
         };
         NetworkManager.Instance.SendMessage(message);
     }
