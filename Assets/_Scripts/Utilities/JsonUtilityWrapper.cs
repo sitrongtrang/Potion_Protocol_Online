@@ -71,7 +71,7 @@ public static class JsonUtilityWrapper
         }
     }
 
-    private static void ProcessMember<T>(Dictionary<string, object> jsonDict, T obj, 
+    private static void ProcessMember<T>(Dictionary<string, object> jsonDict, T obj,
         string memberName, Type memberType, Action<T, object> setter)
     {
         // Check for JsonProperty attribute
@@ -81,18 +81,25 @@ public static class JsonUtilityWrapper
         var jsonProp = memberInfo.GetCustomAttribute<JsonPropertyAttribute>();
         string jsonKey = jsonProp?.PropertyName ?? memberName;
 
-        if (jsonDict.TryGetValue(jsonKey, out object value))
+        if (!jsonDict.TryGetValue(jsonKey, out object value))
         {
-            try
+            if (!memberType.IsValueType) // Only for reference types
             {
-                object convertedValue = ConvertValue(value, memberType);
-                setter(obj, convertedValue);
+                setter(obj, null);
             }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"Failed to set {memberName}: {e.Message}");
-            }
+            return;
         }
+        
+        try
+        {
+            object convertedValue = ConvertValue(value, memberType);
+            setter(obj, convertedValue);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"Failed to set {memberName}: {e.Message}");
+        }
+
     }
 
     private static MemberInfo GetMemberInfo(Type type, string memberName)
