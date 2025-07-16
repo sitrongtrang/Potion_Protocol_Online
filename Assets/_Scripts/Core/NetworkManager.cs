@@ -13,15 +13,16 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] private int _port = 9000;
     [SerializeField] private float _reconnectDelay = 5f;
     
-    // Network components
+    [Header("Network Components")]
     private TcpClient _client;
     private NetworkStream _stream;
     private Thread _receiveThread;
     private bool _isConnected = false;
     
-    // Client identification
-    private string _clientId; // Server-assigned ID
+    [Header("Client Identification")]
+    private string _clientId = "A"; // Server-assigned ID
     private string _sessionToken; // For reconnection
+    private string _authToken;
     private bool _isAuthenticated;
 
     #region Unity Lifecycle
@@ -77,7 +78,7 @@ public class NetworkManager : MonoBehaviour
             NetworkEvents.InvokeConnectionStatusChanged(true);
             
             // Start authentication process
-            Authenticate();
+            // Authenticate();
         }
         catch (Exception e)
         {
@@ -85,20 +86,29 @@ public class NetworkManager : MonoBehaviour
             ScheduleReconnect();
         }
     }
+
+    public void TestAuthenticate(string token)
+    {
+        _authToken = token;
+        Authenticate();
+    }
     
     private void Authenticate()
     {
         if (!string.IsNullOrEmpty(_sessionToken))
         {
             // Try to reconnect with existing session
-            SendMessage(new ReconnectMessage {
+            SendMessage(new ReconnectMessage
+            {
                 SessionToken = _sessionToken
             });
         }
         else
         {
             // New authentication
-            SendMessage(new AuthMessage {
+            SendMessage(new AuthMessage
+            {
+                Token = _authToken,
                 DeviceId = SystemInfo.deviceUniqueIdentifier
             });
         }
