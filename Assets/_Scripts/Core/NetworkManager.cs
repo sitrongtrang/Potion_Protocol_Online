@@ -161,7 +161,7 @@ public class NetworkManager : MonoBehaviour
     //     NetworkEvents.OnConnectionStatusChanged += HandleConnectionChange;
     // }
 
-    // private void HandleCoreMessages(NetworkMessage message)
+    // private void HandleCoreMessages(ServerMessage message)
     // {
     //     // Handle system-critical messages here
     //     switch (message.MessageType)

@@ -7,7 +7,7 @@ using UnityEngine;
 public static class Serialization
 {
     // You must assign this from the outside (before serializing)
-    public static Func<NetworkMessage, int> GenerateMessageId = _ => UnityEngine.Random.Range(1, int.MaxValue);
+    public static Func<ClientMessage, int> GenerateMessageId = _ => UnityEngine.Random.Range(1, int.MaxValue);
 
     /// <summary>
     /// Serialize a NetworkMessage into the binary format expected by the Java server.

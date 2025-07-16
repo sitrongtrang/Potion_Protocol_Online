@@ -55,7 +55,7 @@ public class PlayerInventory
         return _choosingSlot;
     }
 
-    public void HandleNetworkMessage(NetworkMessage message)
+    public void HandleNetworkMessage(ServerMessage message)
     {
         var result = message.MessageType switch
         {
@@ -64,10 +64,10 @@ public class PlayerInventory
         };
     }
 
-    public object HandlePlayerInventory(NetworkMessage message)
+    public object HandlePlayerInventory(ServerMessage message)
     {
         var inventoryMessage = (PlayerInventoryMessage)message;
-        if (inventoryMessage.PlayerId != _player.PlayerId) return null;
+        if (inventoryMessage.ReceiverId != _player.PlayerId) return null;
 
         if (inventoryMessage.SlotIndex < 0 || inventoryMessage.SlotIndex >= GameConstants.MaxSlot)
         {

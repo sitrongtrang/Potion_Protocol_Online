@@ -13,7 +13,7 @@
 //         NetworkEvents.OnMessageReceived += HandleNetworkMessage;
 //     }
 
-//     public void HandleNetworkMessage(NetworkMessage message)
+//     public void HandleNetworkMessage(ServerMessage message)
 //     {
 //         if (message.MessageType == NetworkMessageTypes.Station.Update)
 //         {

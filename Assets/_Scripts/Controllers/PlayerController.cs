@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviour
         };
     }
 
-    private object HandlePlayerMove(NetworkMessage message)
+    private object HandlePlayerMove(ServerMessage message)
     {
         _newPosition = ((PlayerMoveMessage)message).NewPosition;
         return null;
