@@ -251,7 +251,7 @@ MonoBehaviour:
   _ip: 127.0.0.1
   _port: 9000
   _reconnectDelay: 5
-  _authToken: eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjY4NzYxMjA4YWQ5ZWUzMzA1ZDc0MDc5MCIsInN1YiI6ImpvaG5fZG9lIiwiaWF0IjoxNzUyNTkwMDM5LCJleHAiOjE3NTI2NzY0Mzl9.v6bwZpRgaciJIDQQiwI7Nb_dCK4B7r_nLz739K6Vnyg
+  _authToken: 
 --- !u!4 &1436136243
 Transform:
   m_ObjectHideFlags: 0

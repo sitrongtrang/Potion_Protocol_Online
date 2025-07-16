@@ -16,25 +16,37 @@ public static class Serialization
     {
         int messageId = GenerateMessageId?.Invoke(message) ?? UnityEngine.Random.Range(1, int.MaxValue);
 
-        // Correctly wrap payload
         string payloadJson = JsonUtility.ToJson(message);
         string wrappedJson = "{\"payload\":" + payloadJson + "}";
         byte[] jsonBytes = Encoding.UTF8.GetBytes(wrappedJson);
 
-        int bodyLength = 2 + 4 + jsonBytes.Length; // methodType (short) + messageId (int) + payload
         using MemoryStream stream = new();
-        using BinaryWriter writer = new(stream)
-        {
-            // Little endian by default in .NET, same as Java ByteBuffer unless explicitly set
-        };
+        using BinaryWriter writer = new(stream);
 
-        writer.Write((short)bodyLength);               // total body length
-        writer.Write(message.MessageType);             // short
-        writer.Write(messageId);                       // int (4 bytes)
-        writer.Write(jsonBytes);                       // UTF-8 payload
+        writer.Write((short)0); // placeholder for length
 
-        return stream.ToArray();
+        // Manually write big-endian MessageType (short)
+        writer.Write((byte)((message.MessageType >> 8) & 0xFF));
+        writer.Write((byte)(message.MessageType & 0xFF));
+
+        // Manually write big-endian MessageId (int)
+        writer.Write((byte)((messageId >> 24) & 0xFF));
+        writer.Write((byte)((messageId >> 16) & 0xFF));
+        writer.Write((byte)((messageId >> 8) & 0xFF));
+        writer.Write((byte)(messageId & 0xFF));
+
+        writer.Write(jsonBytes);
+
+        byte[] messageBytes = stream.ToArray();
+
+        // Set correct length (excluding the length prefix itself)
+        short actualLength = (short)(messageBytes.Length - 2);
+        messageBytes[0] = (byte)((actualLength >> 8) & 0xFF);
+        messageBytes[1] = (byte)(actualLength & 0xFF);
+
+        return messageBytes;
     }
+
 
     /// <summary>
     /// Deserialize a server response (byte array) into a message structure.
