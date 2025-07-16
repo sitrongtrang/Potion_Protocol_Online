@@ -242,27 +242,40 @@ public static class JsonUtilityWrapper
     private static object ParseJsonValue(string value)
     {
         value = value.Trim();
-        
+
+        if (value.StartsWith("{") && value.EndsWith("}"))
+        {
+            // Defer parsing nested object to later, keep as string
+            return value;
+        }
+
+        if (value.StartsWith("[") && value.EndsWith("]"))
+        {
+            // Return as raw string for now
+            return value;
+        }
+
         if (value.StartsWith("\"") && value.EndsWith("\""))
             return value.Trim('"');
-        
+
         if (long.TryParse(value, out long longVal))
             return longVal;
-        
+
         if (double.TryParse(value, out double doubleVal))
             return doubleVal;
-        
+
         if (value.Equals("true", StringComparison.OrdinalIgnoreCase))
             return true;
-        
+
         if (value.Equals("false", StringComparison.OrdinalIgnoreCase))
             return false;
-        
+
         if (value.Equals("null", StringComparison.OrdinalIgnoreCase))
             return null;
 
         return value;
     }
+
 
     private static object ConvertValue(object value, Type targetType)
     {
@@ -277,6 +290,20 @@ public static class JsonUtilityWrapper
                 return Enum.ToObject(targetType, value);
             }
 
+            if (targetType == typeof(string))
+                return Convert.ToString(value);
+
+            // Handle custom classes (nested objects)
+            if (targetType.IsClass && value is string strValue && strValue.StartsWith("{"))
+            {
+                MethodInfo fromJsonMethod = typeof(JsonUtilityWrapper)
+                    .GetMethod(nameof(FromJson), BindingFlags.Public | BindingFlags.Static)
+                    ?.MakeGenericMethod(targetType);
+
+                return fromJsonMethod?.Invoke(null, new object[] { strValue });
+            }
+
+            // Handle arrays and lists (future enhancement)
             return Convert.ChangeType(value, targetType);
         }
         catch
@@ -285,6 +312,7 @@ public static class JsonUtilityWrapper
             return value;
         }
     }
+
 
     private static void AppendJsonValue(StringBuilder sb, object value, bool prettyPrint, string indent)
     {
@@ -312,11 +340,17 @@ public static class JsonUtilityWrapper
             }
             sb.Append("]");
         }
+        else if (value.GetType().IsClass && value.GetType() != typeof(string))
+        {
+            // Custom class — recurse
+            sb.Append(ToJsonWithNaming(value, prettyPrint));
+        }
         else
         {
             sb.Append(Convert.ToString(value).ToLower());
         }
     }
+
 
     #endregion
 }

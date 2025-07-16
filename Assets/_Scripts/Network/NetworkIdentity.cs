@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class NetworkIdentity : MonoBehaviour
 {
-    private static Dictionary<string, NetworkIdentity> _allClients = new();
+    private static readonly Dictionary<string, NetworkIdentity> _allClients = new();
     
     public string ClientId { get; private set; }
     public bool IsLocalPlayer { get; private set; }
