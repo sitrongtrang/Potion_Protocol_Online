@@ -116,6 +116,12 @@ public class PlayerCollideMessage : ClientMessage
 
     public PlayerCollideMessage() : base(NetworkMessageTypes.Input.PlayerTryCollide) { }
 }
+
+[Serializable]
+public class PingMessage : ClientMessage
+{
+    public PingMessage() : base(NetworkMessageTypes.System.Ping) { }
+}
 #endregion
 
 
@@ -293,14 +299,6 @@ public class GameTimeUpdateMessage : ServerMessage
     public int CurrentWave;
 
     public GameTimeUpdateMessage() : base(NetworkMessageTypes.GameState.TimeUpdate) { }
-}
-
-[Serializable]
-public class PingMessage : ServerMessage
-{
-    public double SendTime;
-
-    public PingMessage() : base(NetworkMessageTypes.System.Ping) { }
 }
 
 [Serializable]

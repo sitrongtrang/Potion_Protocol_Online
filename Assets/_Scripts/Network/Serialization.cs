@@ -127,7 +127,6 @@ public static class Serialization
             NetworkMessageTypes.GameState.ScoreUpdate => JsonUtilityWrapper.FromJson<GameScoreUpdateMessage>(json),
             NetworkMessageTypes.GameState.TimeUpdate => JsonUtilityWrapper.FromJson<GameTimeUpdateMessage>(json),
 
-            NetworkMessageTypes.System.Ping => JsonUtilityWrapper.FromJson<PingMessage>(json),
             NetworkMessageTypes.System.Pong => JsonUtilityWrapper.FromJson<PongMessage>(json),
             NetworkMessageTypes.System.Kick => JsonUtilityWrapper.FromJson<KickMessage>(json),
 
