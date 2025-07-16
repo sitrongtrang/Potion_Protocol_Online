@@ -10,7 +10,7 @@ public class AuthHandler : MonoBehaviour
     [ContextMenu("Test Auth")]
     private void TestSendAuth()
     {
-        NetworkManager.Instance.SendMessage(new PlayerAuthInputMessage
+        NetworkManager.Instance.SendMessage(new AuthMessage
         {
             Token = _authToken
         });
@@ -21,14 +21,14 @@ public class AuthHandler : MonoBehaviour
     {
         var result = message.MessageType switch
         {
-            NetworkMessageTypes.Authorization.AuthSuccess => HandleAuthSucess(message),
+            NetworkMessageTypes.System.AuthSuccess => HandleAuthSucess(message),
             _ => null
         };
     }
 
     private object HandleAuthSucess(ServerMessage message)
     {
-        PlayerAuthSucessMessage message1 = (PlayerAuthSucessMessage)message;
+        AuthSuccessMessage message1 = (AuthSuccessMessage)message;
         Debug.Log("response: " + message1.Response + ", reconnectToken: " + message1.ReconnectToken);
         return null;
     }

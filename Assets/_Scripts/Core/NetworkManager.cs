@@ -1,22 +1,28 @@
 using System;
-using System.Collections;
-using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
 
 public class NetworkManager : MonoBehaviour
 {
+    // Singleton instance
     public static NetworkManager Instance { get; private set; }
 
     [Header("Connection Settings")]
     [SerializeField] private string _ip = "127.0.0.1";
     [SerializeField] private int _port = 9000;
     [SerializeField] private float _reconnectDelay = 5f;
+    
+    // Network components
     private TcpClient _client;
     private NetworkStream _stream;
     private Thread _receiveThread;
     private bool _isConnected = false;
+    
+    // Client identification
+    private string _clientId; // Server-assigned ID
+    private string _sessionToken; // For reconnection
+    private bool _isAuthenticated;
 
     #region Unity Lifecycle
     private void Awake()
@@ -25,7 +31,7 @@ public class NetworkManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            // Initialize()
+            Initialize();
         }
         else
         {
@@ -35,11 +41,22 @@ public class NetworkManager : MonoBehaviour
         UnityMainThreadDispatcher.Initialize();
     }
 
-    private void Start()
+    private void Initialize()
     {
-        ConnectToServer();
+        // Load saved session token if exists
+        _sessionToken = PlayerPrefs.GetString("SessionToken");
+        
     }
 
+    private void Start() => ConnectToServer();
+
+    private void OnDestroy()
+    {
+        Disconnect();
+    }
+    #endregion
+
+    #region Connection Management
     public void ConnectToServer()
     {
         if (_isConnected) return;
@@ -58,6 +75,9 @@ public class NetworkManager : MonoBehaviour
 
             Debug.Log($"Connected to {_ip}:{_port}");
             NetworkEvents.InvokeConnectionStatusChanged(true);
+            
+            // Start authentication process
+            Authenticate();
         }
         catch (Exception e)
         {
@@ -66,9 +86,28 @@ public class NetworkManager : MonoBehaviour
         }
     }
     
+    private void Authenticate()
+    {
+        if (!string.IsNullOrEmpty(_sessionToken))
+        {
+            // Try to reconnect with existing session
+            SendMessage(new ReconnectMessage {
+                SessionToken = _sessionToken
+            });
+        }
+        else
+        {
+            // New authentication
+            SendMessage(new AuthMessage {
+                DeviceId = SystemInfo.deviceUniqueIdentifier
+            });
+        }
+    }
+
     public void Disconnect()
     {
         _isConnected = false;
+        _isAuthenticated = false;
         _receiveThread?.Abort();
         
         try
@@ -93,7 +132,7 @@ public class NetworkManager : MonoBehaviour
     }
     #endregion
 
-    #region Data Transmission
+    #region Data Handling
     private void ReceiveData()
     {
         byte[] buffer = new byte[4096];
@@ -109,14 +148,14 @@ public class NetworkManager : MonoBehaviour
                     {
                         UnityMainThreadDispatcher.Instance.Enqueue(() =>
                         {
-                            NetworkEvents.InvokeMessageReceived(message);
+                            ProcessIncomingMessage(message);
                         });
                     }
                 }
             }
             catch (Exception e)
             {
-                if (_isConnected) // Only log if we expected to be connected
+                if (_isConnected)
                 {
                     Debug.LogError($"Receive error: {e.Message}");
                     UnityMainThreadDispatcher.Instance.Enqueue(() =>
@@ -130,10 +169,26 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
+    private void ProcessIncomingMessage(ServerMessage message)
+    {
+        // First handle system messages
+        if (HandleSystemMessage(message))
+            return;
+            
+        // Then dispatch to game systems
+        NetworkEvents.InvokeMessageReceived(message);
+    }
+
     public void SendMessage(ClientMessage message)
     {
         if (!_isConnected || _stream == null || !_stream.CanWrite) 
             return;
+
+        // Add client ID to all outgoing messages if authenticated
+        if (_isAuthenticated && string.IsNullOrEmpty(message.SenderId))
+        {
+            message.SenderId = _clientId;
+        }
 
         try
         {
@@ -153,62 +208,52 @@ public class NetworkManager : MonoBehaviour
     }
     #endregion
 
-    // #region Initialization
-    // private void Initialize()
-    // {
-    //     // Register core message handlers
-    //     NetworkEvents.OnMessageReceived += HandleCoreMessages;
-    //     NetworkEvents.OnConnectionStatusChanged += HandleConnectionChange;
-    // }
-
-    // private void HandleCoreMessages(ServerMessage message)
-    // {
-    //     // Handle system-critical messages here
-    //     switch (message.MessageType)
-    //     {
-    //         // case "Kick":
-    //         //     HandleKickMessage((KickMessage)message);
-    //         //     break;
-    //         case "Ping":
-    //             HandlePingMessage((PingMessage)message);
-    //             break;
-    //     }
-    // }
-
-    // private void HandleConnectionChange(bool connected)
-    // {
-    //     // Update UI or game state
-    //     if (connected)
-    //     {
-    //         Debug.Log("Network connection established");
-    //     }
-    //     else
-    //     {
-    //         Debug.LogWarning("Network connection lost");
-    //     }
-    // }
-    // #endregion
-
-    // #region System Message Handlers
-    // private void HandleKickMessage(KickMessage message)
-    // {
-    //     Debug.Log($"Kicked from server: {message.Reason}");
-    //     Disconnect();
-    //     SceneLoader.LoadScene("MainMenu");
-    // }
-
-    // private void HandlePingMessage(PingMessage message)
-    // {
-    //     SendMessage(new PingMessage {
-    //         Timestamp = message.Timestamp
-    //     });
-    // }
-    // #endregion
-
-    private void OnDestroy()
+    #region System Message Handlers
+    private bool HandleSystemMessage(ServerMessage message)
     {
-        Disconnect();
-        // NetworkEvents.OnMessageReceived -= HandleCoreMessages;
-        // NetworkEvents.OnConnectionStatusChanged -= HandleConnectionChange;
+        switch (message.MessageType)
+        {
+            case NetworkMessageTypes.System.AuthSuccess:
+                HandleAuthSuccess((AuthSuccessMessage)message);
+                return true;
+                
+            case NetworkMessageTypes.System.Kick:
+                HandleKickMessage((KickMessage)message);
+                return true;
+                
+            case NetworkMessageTypes.System.ClientIdAssignment:
+                HandleClientIdAssignment((ClientIdMessage)message);
+                return true;
+                
+            default:
+                return false;
+        }
     }
+
+    private void HandleAuthSuccess(AuthSuccessMessage message)
+    {
+        _isAuthenticated = true;
+        _sessionToken = message.ReconnectToken;
+        PlayerPrefs.SetString("SessionToken", _sessionToken);
+        
+        Debug.Log("Authentication successful");
+    }
+
+    private void HandleClientIdAssignment(ClientIdMessage message)
+    {
+        _clientId = message.AssignedId;
+        Debug.Log($"Assigned client ID: {_clientId}");
+        
+        // Now spawn the player
+        // NetworkEvents.InvokePlayerSpawnRequested(_clientId);
+    }
+
+    private void HandleKickMessage(KickMessage message)
+    {
+        Debug.Log($"Kicked from server: {message.Reason}");
+        PlayerPrefs.DeleteKey("SessionToken");
+        Disconnect();
+        // Load menu scene or show disconnect UI
+    }
+    #endregion
 }

@@ -1,9 +1,14 @@
 public static class NetworkMessageTypes
 {
     // Client -> Server Messages
-    public static class Input
+    public static class Authentication
     {
         public const short PlayerTryAuth = 0;
+        public const short PlayerTryReconnect = 1;
+
+    }
+    public static class IngameInput
+    {
         public const short PlayerTryMove = 4;
         public const short PlayerTryPickup = 2;
         public const short PlayerTryDrop = 3;
@@ -26,11 +31,6 @@ public static class NetworkMessageTypes
         public const short Submit = 14;
     }
 
-    public static class Authorization
-    {
-        public const short AuthSuccess = 0;
-    }
-
     public static class Station
     {
         public const short Update = 15;
@@ -39,7 +39,10 @@ public static class NetworkMessageTypes
 
     public static class Item
     {
+        public const short Spawn = 600;
+        public const short Pickuped = 500;
         public const short Drop = 17;
+        public const short Despawn = 400;
     }
 
     public static class Enemy
@@ -63,6 +66,10 @@ public static class NetworkMessageTypes
 
     public static class System
     {
+        public const short AuthSuccess = 0;
+
+        public const short ClientIdAssignment = 1;
+        
         public const short Ping = 25;
         public const short Pong = 26;
         public const short Kick = 27;

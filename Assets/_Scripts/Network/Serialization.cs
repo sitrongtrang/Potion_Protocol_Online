@@ -104,7 +104,7 @@ public static class Serialization
         return messageType switch
         {
             // Only have cases for server broadcast json
-            NetworkMessageTypes.Authorization.AuthSuccess => JsonUtilityWrapper.FromJson<PlayerAuthSucessMessage>(json),
+            NetworkMessageTypes.System.AuthSuccess => JsonUtilityWrapper.FromJson<AuthSuccessMessage>(json),
 
             NetworkMessageTypes.Player.Connected => JsonUtilityWrapper.FromJson<PlayerConnectedMessage>(json),
             NetworkMessageTypes.Player.Disconnected => JsonUtilityWrapper.FromJson<PlayerDisconnectedMessage>(json),
