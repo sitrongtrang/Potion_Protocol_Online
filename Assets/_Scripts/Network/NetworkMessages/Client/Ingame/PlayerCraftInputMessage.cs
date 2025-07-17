@@ -7,5 +7,5 @@ public class PlayerCraftInputMessage : ClientMessage
     public Vector2 CurrentPosition;
     public bool CraftKeyDown;
 
-    public PlayerCraftInputMessage() : base(NetworkMessageTypes.IngameInput.PlayerTryCraft) { }
+    public PlayerCraftInputMessage() : base(NetworkMessageTypes.Client.Ingame.TryCraft) { }
 }

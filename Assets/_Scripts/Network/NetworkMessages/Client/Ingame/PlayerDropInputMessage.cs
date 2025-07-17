@@ -8,5 +8,5 @@ public class PlayerDropInputMessage : ClientMessage
     public int SelectedSlot;
     public bool DropKeyDown;
 
-    public PlayerDropInputMessage() : base(NetworkMessageTypes.IngameInput.PlayerTryDrop) { }
+    public PlayerDropInputMessage() : base(NetworkMessageTypes.Client.Ingame.TryDrop) { }
 }

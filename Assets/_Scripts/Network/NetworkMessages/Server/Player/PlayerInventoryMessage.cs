@@ -10,5 +10,5 @@ public class PlayerInventoryMessage : ServerMessage
     public string ItemId;
     public Vector2 DropPosition;
 
-    public PlayerInventoryMessage() : base(NetworkMessageTypes.Player.Inventory) { }
+    public PlayerInventoryMessage() : base(NetworkMessageTypes.Server.Player.Inventory) { }
 }

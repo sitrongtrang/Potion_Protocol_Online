@@ -9,5 +9,5 @@ public class EnemyDeathMessage : ServerMessage
     public Vector2 DeathPosition;
     public string[] DroppedItems;
 
-    public EnemyDeathMessage() : base(NetworkMessageTypes.Enemy.Death) { }
+    public EnemyDeathMessage() : base(NetworkMessageTypes.Server.Enemy.Death) { }
 }

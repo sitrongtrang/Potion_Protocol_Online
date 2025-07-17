@@ -55,7 +55,7 @@ public class LocalPlayerController : MonoBehaviour
     {
         var result = message.MessageType switch
         {
-            NetworkMessageTypes.Player.Movement => HandlePlayerMove(message),
+            NetworkMessageTypes.Server.Player.Movement => HandlePlayerMove(message),
             _ => null
         };
     }

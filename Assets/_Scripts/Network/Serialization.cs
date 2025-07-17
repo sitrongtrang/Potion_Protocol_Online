@@ -104,31 +104,31 @@ public static class Serialization
         return messageType switch
         {
             // Only have cases for server broadcast json
-            NetworkMessageTypes.System.AuthSuccess => JsonUtilityWrapper.FromJson<AuthSuccessMessage>(json),
+            NetworkMessageTypes.Server.System.AuthSuccess => JsonUtilityWrapper.FromJson<AuthSuccessMessage>(json),
 
-            NetworkMessageTypes.Player.Connected => JsonUtilityWrapper.FromJson<PlayerConnectedMessage>(json),
-            NetworkMessageTypes.Player.Disconnected => JsonUtilityWrapper.FromJson<PlayerDisconnectedMessage>(json),
-            NetworkMessageTypes.Player.Movement => JsonUtilityWrapper.FromJson<PlayerMoveMessage>(json),
-            NetworkMessageTypes.Player.Inventory => JsonUtilityWrapper.FromJson<PlayerInventoryMessage>(json),
-            NetworkMessageTypes.Player.Attack => JsonUtilityWrapper.FromJson<PlayerAttackMessage>(json),
-            NetworkMessageTypes.Player.Craft => JsonUtilityWrapper.FromJson<PlayerCraftMessage>(json),
-            NetworkMessageTypes.Player.Submit => JsonUtilityWrapper.FromJson<PlayerSubmitMessage>(json),
+            NetworkMessageTypes.Server.Player.Connected => JsonUtilityWrapper.FromJson<PlayerConnectedMessage>(json),
+            NetworkMessageTypes.Server.Player.Disconnected => JsonUtilityWrapper.FromJson<PlayerDisconnectedMessage>(json),
+            NetworkMessageTypes.Server.Player.Movement => JsonUtilityWrapper.FromJson<PlayerMoveMessage>(json),
+            NetworkMessageTypes.Server.Player.Inventory => JsonUtilityWrapper.FromJson<PlayerInventoryMessage>(json),
+            NetworkMessageTypes.Server.Player.Attack => JsonUtilityWrapper.FromJson<PlayerAttackMessage>(json),
+            NetworkMessageTypes.Server.Player.Craft => JsonUtilityWrapper.FromJson<PlayerCraftMessage>(json),
+            NetworkMessageTypes.Server.Player.Submit => JsonUtilityWrapper.FromJson<PlayerSubmitMessage>(json),
 
-            NetworkMessageTypes.Station.Update => JsonUtilityWrapper.FromJson<StationUpdateMessage>(json),
-            NetworkMessageTypes.Item.Drop => JsonUtilityWrapper.FromJson<ItemDropMessage>(json),
+            NetworkMessageTypes.Server.Station.Update => JsonUtilityWrapper.FromJson<StationUpdateMessage>(json),
+            NetworkMessageTypes.Server.Item.Drop => JsonUtilityWrapper.FromJson<ItemDropMessage>(json),
 
-            NetworkMessageTypes.Enemy.Spawn => JsonUtilityWrapper.FromJson<EnemySpawnMessage>(json),
-            NetworkMessageTypes.Enemy.Move => JsonUtilityWrapper.FromJson<EnemyMoveMessage>(json),
-            NetworkMessageTypes.Enemy.Death => JsonUtilityWrapper.FromJson<EnemyDeathMessage>(json),
+            NetworkMessageTypes.Server.Enemy.Spawn => JsonUtilityWrapper.FromJson<EnemySpawnMessage>(json),
+            NetworkMessageTypes.Server.Enemy.Move => JsonUtilityWrapper.FromJson<EnemyMoveMessage>(json),
+            NetworkMessageTypes.Server.Enemy.Death => JsonUtilityWrapper.FromJson<EnemyDeathMessage>(json),
 
-            NetworkMessageTypes.Resource.Spawn => JsonUtilityWrapper.FromJson<ResourceSpawnMessage>(json),
-            NetworkMessageTypes.Resource.Harvested => JsonUtilityWrapper.FromJson<ResourceHarvestedMessage>(json),
+            NetworkMessageTypes.Server.Resource.Spawn => JsonUtilityWrapper.FromJson<ResourceSpawnMessage>(json),
+            NetworkMessageTypes.Server.Resource.Harvested => JsonUtilityWrapper.FromJson<ResourceHarvestedMessage>(json),
 
-            NetworkMessageTypes.GameState.ScoreUpdate => JsonUtilityWrapper.FromJson<GameScoreUpdateMessage>(json),
-            NetworkMessageTypes.GameState.TimeUpdate => JsonUtilityWrapper.FromJson<GameTimeUpdateMessage>(json),
+            NetworkMessageTypes.Server.GameState.ScoreUpdate => JsonUtilityWrapper.FromJson<GameScoreUpdateMessage>(json),
+            NetworkMessageTypes.Server.GameState.TimeUpdate => JsonUtilityWrapper.FromJson<GameTimeUpdateMessage>(json),
 
-            NetworkMessageTypes.System.Pong => JsonUtilityWrapper.FromJson<PongMessage>(json),
-            NetworkMessageTypes.System.Kick => JsonUtilityWrapper.FromJson<KickMessage>(json),
+            NetworkMessageTypes.Server.System.Pong => JsonUtilityWrapper.FromJson<PongMessage>(json),
+            // NetworkMessageTypes.System.Kick => JsonUtilityWrapper.FromJson<KickMessage>(json),
 
             _ => null
         };

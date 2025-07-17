@@ -7,5 +7,5 @@ public class AuthSuccessMessage : ServerMessage
     public string Response;
     [JsonProperty("reconnectToken")]
     public string ReconnectToken;
-    public AuthSuccessMessage() : base(NetworkMessageTypes.System.AuthSuccess) { }
+    public AuthSuccessMessage() : base(NetworkMessageTypes.Server.System.AuthSuccess) { }
 }

@@ -7,5 +7,5 @@ public class ItemDropMessage : ServerMessage
     public string ItemId;
     public Vector2 Position;
 
-    public ItemDropMessage() : base(NetworkMessageTypes.Item.Drop) { }
+    public ItemDropMessage() : base(NetworkMessageTypes.Server.Item.Drop) { }
 }

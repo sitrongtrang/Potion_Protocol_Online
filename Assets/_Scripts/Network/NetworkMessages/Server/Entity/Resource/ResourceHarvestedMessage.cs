@@ -7,5 +7,5 @@ public class ResourceHarvestedMessage : ServerMessage
     public string HarvesterId;
     public string[] DroppedItems;
 
-    public ResourceHarvestedMessage() : base(NetworkMessageTypes.Resource.Harvested) { }
+    public ResourceHarvestedMessage() : base(NetworkMessageTypes.Server.Resource.Harvested) { }
 }

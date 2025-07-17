@@ -36,7 +36,7 @@ public class PlayerInteraction
     {
         var result = message.MessageType switch
         {
-            NetworkMessageTypes.Player.Collide => HandlePlayerCollide(message),
+            NetworkMessageTypes.Server.Player.Collide => HandlePlayerCollide(message),
             _ => null
         };
     }

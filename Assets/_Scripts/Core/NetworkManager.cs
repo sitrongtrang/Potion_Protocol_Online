@@ -233,12 +233,11 @@ public class NetworkManager : MonoBehaviour
     {
         switch (message.MessageType)
         {
-            case NetworkMessageTypes.System.AuthSuccess:
+            case NetworkMessageTypes.Server.System.AuthSuccess:
                 HandleAuthSuccess((AuthSuccessMessage)message);
                 return true;
-
-            case NetworkMessageTypes.System.Kick:
-                HandleKickMessage((KickMessage)message);
+            case NetworkMessageTypes.Server.System.Pong:
+                NetworkTime.Instance?.HandlePong((PongMessage)message);
                 return true;
 
             default:
@@ -263,14 +262,6 @@ public class NetworkManager : MonoBehaviour
             message.Position,
             isLocal
         );
-    }
-
-    private void HandleKickMessage(KickMessage message)
-    {
-        Debug.Log($"Kicked from server: {message.Reason}");
-        // PlayerPrefs.DeleteKey("SessionToken");
-        Disconnect();
-        // Load menu scene or show disconnect UI
     }
     #endregion
 

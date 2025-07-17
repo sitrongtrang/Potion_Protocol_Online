@@ -8,5 +8,5 @@ public class PlayerAttackInputMessage : ClientMessage
     public Quaternion CurrentRotation;
     public bool AttackKeyDown;
 
-    public PlayerAttackInputMessage() : base(NetworkMessageTypes.IngameInput.PlayerTryAttack) { }
+    public PlayerAttackInputMessage() : base(NetworkMessageTypes.Client.Ingame.TryAttack) { }
 }

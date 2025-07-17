@@ -10,5 +10,5 @@ public class EnemySpawnMessage : ServerMessage
     public Vector2 Position;
     public Vector2[] PatrolPoints;
 
-    public EnemySpawnMessage() : base(NetworkMessageTypes.Enemy.Spawn) { }
+    public EnemySpawnMessage() : base(NetworkMessageTypes.Server.Enemy.Spawn) { }
 }

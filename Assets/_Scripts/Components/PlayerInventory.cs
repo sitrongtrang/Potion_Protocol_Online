@@ -52,7 +52,7 @@ public class PlayerInventory
     {
         var result = message.MessageType switch
         {
-            NetworkMessageTypes.Player.Inventory => HandlePlayerInventory(message),
+            NetworkMessageTypes.Server.Player.Inventory => HandlePlayerInventory(message),
             _ => null
         };
     }

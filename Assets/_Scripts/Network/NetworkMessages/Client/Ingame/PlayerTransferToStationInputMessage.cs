@@ -8,5 +8,5 @@ public class PlayerTransferToStationInputMessage : ClientMessage
     public int SelectedSlot;
     public bool PutToStationKeyDown;
 
-    public PlayerTransferToStationInputMessage() : base(NetworkMessageTypes.IngameInput.PlayerTryTransferToStation) { }
+    public PlayerTransferToStationInputMessage() : base(NetworkMessageTypes.Client.Ingame.TryTransferToStation) { }
 }

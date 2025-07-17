@@ -3,7 +3,9 @@ using System;
 [Serializable]
 public class PongMessage : ServerMessage
 {
-    public double OriginalPingTime;
+    public double ClientSendTime;
+    public double ServerReceiveTime;
+    public double ServerSendTime;
 
-    public PongMessage() : base(NetworkMessageTypes.System.Pong) { }
+    public PongMessage() : base(NetworkMessageTypes.Server.System.Pong) { }
 }

@@ -10,5 +10,5 @@ public class StationUpdateMessage : ServerMessage
     public string CraftedItemId;
     public Vector2 DropPosition;
 
-    public StationUpdateMessage() : base(NetworkMessageTypes.Station.Update) { }
+    public StationUpdateMessage() : base(NetworkMessageTypes.Server.Station.Update) { }
 }

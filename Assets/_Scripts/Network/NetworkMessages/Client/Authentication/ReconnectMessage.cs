@@ -7,5 +7,5 @@ public class ReconnectMessage : ClientMessage
     public string Token;
     [JsonProperty("reconnectToken")]
     public string SessionToken;
-    public ReconnectMessage() : base(NetworkMessageTypes.Authentication.PlayerTryReconnect) { }
+    public ReconnectMessage() : base(NetworkMessageTypes.Client.Authentication.TryReconnect) { }
 }

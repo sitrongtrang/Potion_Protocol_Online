@@ -8,5 +8,5 @@ public class EnemyMoveMessage : ServerMessage
     public Vector2 Position;
     public Vector2 MovementDirection;
 
-    public EnemyMoveMessage() : base(NetworkMessageTypes.Enemy.Move) { }
+    public EnemyMoveMessage() : base(NetworkMessageTypes.Server.Enemy.Move) { }
 }

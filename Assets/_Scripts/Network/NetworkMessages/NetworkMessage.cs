@@ -16,7 +16,7 @@ public abstract class ClientMessage : NetworkMessage
 {
     public string SenderId;
     public double Timestamp;
-    protected ClientMessage(short messageType) : base(messageType) { Timestamp = Time.time; }
+    protected ClientMessage(short messageType) : base(messageType) { Timestamp = TimeSyncUtils.GetUnixTimeSeconds(); }
 }
 
 public abstract class ServerMessage : NetworkMessage

@@ -8,5 +8,5 @@ public class PlayerCollideMessage : ServerMessage
     public bool IsEntering; // true for OnTriggerEnter2D, false for OnTriggerExit2D
     public Vector2 CollisionPosition;
     
-    public PlayerCollideMessage() : base(NetworkMessageTypes.Player.Collide) { }
+    public PlayerCollideMessage() : base(NetworkMessageTypes.Server.Player.Collide) { }
 }

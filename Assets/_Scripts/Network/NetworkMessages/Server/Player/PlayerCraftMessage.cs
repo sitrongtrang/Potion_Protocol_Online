@@ -9,5 +9,5 @@ public class PlayerCraftMessage : ServerMessage
     public bool Success;
     public string CraftedItemId;
 
-    public PlayerCraftMessage() : base(NetworkMessageTypes.Player.Craft) { }
+    public PlayerCraftMessage() : base(NetworkMessageTypes.Server.Player.Craft) { }
 }

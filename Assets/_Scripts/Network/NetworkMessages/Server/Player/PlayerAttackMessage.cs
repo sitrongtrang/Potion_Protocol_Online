@@ -8,5 +8,5 @@ public class PlayerAttackMessage : ServerMessage
     public int[] TargetIds;
     public Vector2 AttackDirection;
 
-    public PlayerAttackMessage() : base(NetworkMessageTypes.Player.Attack) { }
+    public PlayerAttackMessage() : base(NetworkMessageTypes.Server.Player.Attack) { }
 }

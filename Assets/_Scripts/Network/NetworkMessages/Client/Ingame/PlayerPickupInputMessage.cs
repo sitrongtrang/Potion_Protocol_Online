@@ -8,5 +8,5 @@ public class PlayerPickupInputMessage : ClientMessage
     public int SelectedSlot;
     public bool PickupKeyDown;
 
-    public PlayerPickupInputMessage() : base(NetworkMessageTypes.IngameInput.PlayerTryPickup) { }
+    public PlayerPickupInputMessage() : base(NetworkMessageTypes.Client.Ingame.TryPickup) { }
 }

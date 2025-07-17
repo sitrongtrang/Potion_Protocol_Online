@@ -9,5 +9,5 @@ public class PlayerCollideInputMessage : ClientMessage
     public Vector2 CurrentPosition;
     public Vector2 CollisionPosition;
 
-    public PlayerCollideInputMessage() : base(NetworkMessageTypes.IngameInput.PlayerTryCollide) { }
+    public PlayerCollideInputMessage() : base(NetworkMessageTypes.Client.Ingame.TryCollide) { }
 }

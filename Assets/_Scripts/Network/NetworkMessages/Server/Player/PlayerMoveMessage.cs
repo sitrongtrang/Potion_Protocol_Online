@@ -8,5 +8,5 @@ public class PlayerMoveMessage : ServerMessage
     public Vector2 NewMovementDirection;
     public bool IsDashing;
 
-    public PlayerMoveMessage() : base(NetworkMessageTypes.Player.Movement) { }
+    public PlayerMoveMessage() : base(NetworkMessageTypes.Server.Player.Movement) { }
 }

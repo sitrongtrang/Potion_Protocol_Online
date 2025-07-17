@@ -8,5 +8,5 @@ public class ResourceSpawnMessage : ServerMessage
     public string ResourceType;
     public Vector2 Position;
 
-    public ResourceSpawnMessage() : base(NetworkMessageTypes.Resource.Spawn) { }
+    public ResourceSpawnMessage() : base(NetworkMessageTypes.Server.Resource.Spawn) { }
 }

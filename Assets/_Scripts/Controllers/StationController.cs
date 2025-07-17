@@ -17,8 +17,8 @@ public class StationController : MonoBehaviour
     {
         var result = message.MessageType switch
         {
-            NetworkMessageTypes.Station.Update => HandleStationUpdate(message),
-            NetworkMessageTypes.Station.Craft => HandleStationCraft(message),
+            NetworkMessageTypes.Server.Station.Update => HandleStationUpdate(message),
+            NetworkMessageTypes.Server.Station.Craft => HandleStationCraft(message),
             _ => null,
         };
     }

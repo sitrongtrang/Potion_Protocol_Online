@@ -8,5 +8,5 @@ public class PlayerSubmitInputMessage : ClientMessage
     public int SelectedSlot;
     public bool SubmitKeyDown;
 
-    public PlayerSubmitInputMessage() : base(NetworkMessageTypes.IngameInput.PlayerTrySubmit) { }
+    public PlayerSubmitInputMessage() : base(NetworkMessageTypes.Client.Ingame.TrySubmit) { }
 }
