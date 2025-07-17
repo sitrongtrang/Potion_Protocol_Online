@@ -4,7 +4,8 @@ using UnityEngine;
 [Serializable]
 public class PlayerSpawnMessage : ServerMessage
 {
-    public Vector3 Position;
+    public float PositionX;
+    public float PositionY;
     
     public PlayerSpawnMessage() : base(NetworkMessageTypes.Server.Player.Spawn) { }
 }
