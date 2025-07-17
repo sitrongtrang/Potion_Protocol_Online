@@ -23,6 +23,7 @@ public abstract class ClientMessage : NetworkMessage
 
 public abstract class ServerMessage : NetworkMessage
 {
+    [JsonProperty("clientId")]
     public string ReceiverId;
     public int StatusCode;
     public double ServerTimeStamp;
