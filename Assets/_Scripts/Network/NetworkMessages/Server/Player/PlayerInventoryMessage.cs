@@ -8,7 +8,8 @@ public class PlayerInventoryMessage : ServerMessage
     public int SlotIndex;
     public string AcTionType; // Pickup, Drop, Transfer, or Submit
     public string ItemId;
-    public Vector2 DropPosition;
+    public float DropPositionX;
+    public float DropPositionY;
 
     public PlayerInventoryMessage() : base(NetworkMessageTypes.Server.Player.Inventory) { }
 }

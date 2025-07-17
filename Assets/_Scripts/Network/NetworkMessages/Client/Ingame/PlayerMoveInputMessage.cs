@@ -4,11 +4,15 @@ using UnityEngine;
 [Serializable]
 public class PlayerMoveInputMessage : ClientMessage
 {
-    [JsonProperty("currentPosition")]
-    public Vector2 CurrentPosition;
-    public Quaternion CurrentRotation;
-    [JsonProperty("moveDirection")]
-    public Vector2 MoveDirection;
+    [JsonProperty("currentPositionX")]
+    public float CurretPositionX;
+    [JsonProperty("currentPositionY")]
+    public float CurrentPositionY;
+    // public Quaternion CurrentRotation;
+    [JsonProperty("moveDirectionX")]
+    public float MoveDirectionX;
+    [JsonProperty("moveDirectionX")]
+    public float MoveDirectionY;
     [JsonProperty("dashKeyDown")]
     public bool DashKeyDown;
 

@@ -6,7 +6,8 @@ public class ResourceSpawnMessage : ServerMessage
 {
     public int ResourceId;
     public string ResourceType;
-    public Vector2 Position;
+    public float PositionX;
+    public float PositionY;
 
     public ResourceSpawnMessage() : base(NetworkMessageTypes.Server.Resource.Spawn) { }
 }

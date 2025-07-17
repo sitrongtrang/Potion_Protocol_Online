@@ -6,7 +6,8 @@ public class PlayerAttackMessage : ServerMessage
 {
     public string[] TargetTypes;
     public int[] TargetIds;
-    public Vector2 AttackDirection;
+    public float AttackDirectionX;
+    public float AttackDirectionY;
 
     public PlayerAttackMessage() : base(NetworkMessageTypes.Server.Player.Attack) { }
 }

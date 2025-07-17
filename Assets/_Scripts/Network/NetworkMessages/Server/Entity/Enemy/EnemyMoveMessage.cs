@@ -5,8 +5,10 @@ using UnityEngine;
 public class EnemyMoveMessage : ServerMessage
 {
     public int EnemyId;
-    public Vector2 Position;
-    public Vector2 MovementDirection;
+    public float PositionX;
+    public float PositionY;
+    public float MovementDirectionX;
+    public float MovementDirectionY;
 
     public EnemyMoveMessage() : base(NetworkMessageTypes.Server.Enemy.Move) { }
 }

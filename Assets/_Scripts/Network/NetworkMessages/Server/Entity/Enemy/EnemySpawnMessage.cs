@@ -7,8 +7,11 @@ public class EnemySpawnMessage : ServerMessage
     public int EnemyId;
     public string EnemyType;
     public int SpawnerId;
-    public Vector2 Position;
-    public Vector2[] PatrolPoints;
+    public float PositionX;
+    public float PositionY;
+    public float PatrolCenterX;
+    public float PatrolCenterY;
+    
 
     public EnemySpawnMessage() : base(NetworkMessageTypes.Server.Enemy.Spawn) { }
 }

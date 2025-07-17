@@ -4,7 +4,8 @@ using UnityEngine;
 [Serializable]
 public class PlayerAttackInputMessage : ClientMessage
 {
-    public Vector2 CurrentPosition;
+    public float CurretPositionX;
+    public float CurrentPositionY;
     public Quaternion CurrentRotation;
     public bool AttackKeyDown;
 

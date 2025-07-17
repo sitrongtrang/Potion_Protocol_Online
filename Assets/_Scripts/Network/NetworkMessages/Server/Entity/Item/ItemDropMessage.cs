@@ -5,7 +5,8 @@ using UnityEngine;
 public class ItemDropMessage : ServerMessage
 {
     public string ItemId;
-    public Vector2 Position;
+    public float PositionX;
+    public float PositionY;
 
     public ItemDropMessage() : base(NetworkMessageTypes.Server.Item.Drop) { }
 }

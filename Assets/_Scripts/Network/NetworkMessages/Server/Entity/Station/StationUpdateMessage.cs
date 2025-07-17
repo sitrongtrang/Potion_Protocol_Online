@@ -8,7 +8,8 @@ public class StationUpdateMessage : ServerMessage
     public string[] ItemIds;
     public bool CraftSuccess;
     public string CraftedItemId;
-    public Vector2 DropPosition;
+    public float DropPositionX;
+    public float DropPositionY;
 
     public StationUpdateMessage() : base(NetworkMessageTypes.Server.Station.Update) { }
 }

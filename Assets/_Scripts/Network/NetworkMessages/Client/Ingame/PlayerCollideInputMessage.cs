@@ -6,8 +6,10 @@ public class PlayerCollideInputMessage : ClientMessage
 {
     public string Tag;
     public bool IsEntering; // true for OnTriggerEnter2D, false for OnTriggerExit2D
-    public Vector2 CurrentPosition;
-    public Vector2 CollisionPosition;
+    public float CurretPositionX;
+    public float CurrentPositionY;
+    public float CollidePositionX;
+    public float CollidePositionY;
 
     public PlayerCollideInputMessage() : base(NetworkMessageTypes.Client.Ingame.TryCollide) { }
 }
