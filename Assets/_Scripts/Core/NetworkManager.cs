@@ -44,8 +44,8 @@ public class NetworkManager : MonoBehaviour
 
     private void Initialize()
     {
-        // Load saved session token if exists
         // PlayerPrefs.DeleteAll();
+        // Load saved session token if exists
         // _sessionToken = PlayerPrefs.GetString("SessionToken");
 
     }
@@ -96,12 +96,14 @@ public class NetworkManager : MonoBehaviour
             // Try to reconnect with existing session
             SendMessage(new ReconnectMessage
             {
+                Token = PlayerPrefs.GetString("Token"),
                 SessionToken = _sessionToken
             });
         }
         else
         {
             // New authentication
+            // PlayerPrefs.SetString("Token", _authToken);
             SendMessage(new AuthMessage
             {
                 Token = _authToken,
