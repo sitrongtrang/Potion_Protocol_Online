@@ -121,9 +121,12 @@ public class NetworkManager : MonoBehaviour
 
         try
         {
-            lock (_stream)
+            if (_stream != null)
             {
-                _stream?.Close();
+                lock (_stream)
+                    {
+                        _stream?.Close();
+                    }
             }
             _client?.Close();
         }
