@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 302120836}
   - component: {fileID: 302120837}
   m_Layer: 0
-  m_Name: Login
+  m_Name: Login Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -445,8 +445,8 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1622706088}
-  - {fileID: 302120836}
   - {fileID: 8700016510708418209}
   - {fileID: 1496063369}
+  - {fileID: 302120836}
   - {fileID: 1504673793}
   - {fileID: 1436136243}
