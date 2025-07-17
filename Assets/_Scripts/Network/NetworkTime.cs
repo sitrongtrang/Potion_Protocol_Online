@@ -18,9 +18,10 @@ public class NetworkTime : MonoBehaviour
         }
     }
     [Header("Ping Settings")]
+    private const double SmoothingFactor = 0.1;
     [SerializeField] private float _pingIntervalInSeconds = 5f;
     private Coroutine _pingRoutine;
-    public double EstimatedServerTime => TimeSyncUtils.GetUnixTimeSeconds() + ClockOffset;
+    public double EstimatedServerTime => TimeSyncUtils.GetUnixTimeMilliseconds() + ClockOffset;
     public double RoundTripTime { get; private set; }
     public double ClockOffset { get; private set; }
 
@@ -29,12 +30,12 @@ public class NetworkTime : MonoBehaviour
 
     private void Start()
     {
-        _pingRoutine = StartCoroutine(PingLoop());
+        // _pingRoutine = StartCoroutine(PingLoop());
     }
 
     private void OnEnable()
     {
-        
+
     }
 
     private void OnDisable()
@@ -51,9 +52,10 @@ public class NetworkTime : MonoBehaviour
         }
     }
 
+    [ContextMenu("Ping")]
     private void SendPing()
     {
-        _lastPingSendTime = TimeSyncUtils.GetUnixTimeSeconds();
+        _lastPingSendTime = TimeSyncUtils.GetUnixTimeMilliseconds();
         _awaitingPong = true;
 
         var ping = new PingMessage
@@ -68,16 +70,25 @@ public class NetworkTime : MonoBehaviour
     {
         if (!_awaitingPong) return;
 
-        double now = TimeSyncUtils.GetUnixTimeSeconds();
+        double now = TimeSyncUtils.GetUnixTimeMilliseconds();
         RoundTripTime = now - pong.ClientSendTime;
 
+        // if (RoundTripTime > 300) return; // Ignore bad sample
+
         double estimatedServerTime = pong.ServerReceiveTime + (RoundTripTime / 2.0);
-        ClockOffset = estimatedServerTime - now;
+        ClockOffset = (1 - SmoothingFactor) * ClockOffset + SmoothingFactor * (estimatedServerTime - now);
 
         _awaitingPong = false;
 
-        Debug.Log($"[TimeSync] RTT: {RoundTripTime:F4}s, Offset: {ClockOffset:F4}s, ServerTime: {EstimatedServerTime:F4}");
+        // Debug.Log($"[TimeSync] RTT: {RoundTripTime:F4}ms, Offset: {ClockOffset:F4}ms, ServerTime: {EstimatedServerTime:F4}ms");
     }
+
+    #region Public
+    public double GetServerTime()
+    {
+        return TimeSyncUtils.GetUnixTimeMilliseconds() + ClockOffset;
+    }
+    #endregion
 
 
 
