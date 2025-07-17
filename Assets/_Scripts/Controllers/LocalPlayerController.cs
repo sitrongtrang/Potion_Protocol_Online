@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+[RequireComponent(typeof(NetworkIdentity))]
+public class LocalPlayerController : MonoBehaviour
 {
     public string PlayerId { get; private set; }
     private InputManager _inputManager;
@@ -8,18 +9,20 @@ public class PlayerController : MonoBehaviour
     public PlayerInteraction Interaction { get; private set; }
 
     private Vector2 _newPosition;
-
-    public void Initialize(InputManager inputManager)
+    private NetworkIdentity _netIdentity;
+    public NetworkIdentity NetIdentity => _netIdentity;
+    void OnEnable()
     {
-        Inventory = new PlayerInventory();
-        Interaction = new PlayerInteraction();
-
-        Inventory.Initialize(this, inputManager);
-        Interaction.Initialize(this, inputManager);
-
         NetworkEvents.OnMessageReceived += HandleNetworkMessage;
     }
-
+    void OnDisable()
+    {
+        NetworkEvents.OnMessageReceived -= HandleNetworkMessage;
+    }
+    void Start()
+    {
+        _netIdentity = GetComponent<NetworkIdentity>();
+    }
     void Update()
     {
         var x = Input.GetAxisRaw("Horizontal");
@@ -37,6 +40,15 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         transform.position = _newPosition;
+    }
+
+    public void Initialize(InputManager inputManager)
+    {
+        Inventory = new PlayerInventory();
+        Interaction = new PlayerInteraction();
+
+        Inventory.Initialize(this, inputManager);
+        Interaction.Initialize(this, inputManager);
     }
 
     private void HandleNetworkMessage(ServerMessage message)

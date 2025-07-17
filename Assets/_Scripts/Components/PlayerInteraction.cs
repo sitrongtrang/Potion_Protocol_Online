@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class PlayerInteraction
 {
-    [SerializeField] private PlayerController _player;
+
+    [SerializeField] private LocalPlayerController _player;
     private PlayerInventory _playerInventory;
     private InputManager _inputManager;
     private List<Vector2> _itemsInCollision = new();
@@ -11,7 +12,7 @@ public class PlayerInteraction
     private Vector2 _nearbySubmissionPoint;
     private Vector2 _nearbyCraftPoint;
 
-    public void Initialize(PlayerController player, InputManager inputManager)
+    public void Initialize(LocalPlayerController player, InputManager inputManager)
     {
         _player = player;
         _inputManager = inputManager;

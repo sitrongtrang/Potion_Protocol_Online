@@ -45,4 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localPlayerPrefab: {fileID: 1215612893278448687, guid: 2f743ecb66c651444ba5f6a67314d945, type: 3}
-  _remotePlayerPrefab: {fileID: 1215612893278448687, guid: 2f743ecb66c651444ba5f6a67314d945, type: 3}
+  _remotePlayerPrefab: {fileID: 4554070026209575806, guid: b29e30b296b064b42b32a5c2a8304c13, type: 3}

@@ -118,7 +118,10 @@ public class NetworkManager : MonoBehaviour
 
         try
         {
-            _stream?.Close();
+            lock (_stream)
+            {
+                _stream?.Close();
+            }
             _client?.Close();
         }
         catch (Exception e)
@@ -149,18 +152,27 @@ public class NetworkManager : MonoBehaviour
                 int bytesRead = _stream.Read(buffer, 0, buffer.Length);
                 if (bytesRead > 0)
                 {
-                    ServerMessage message = Serialization.DeserializeMessage(buffer);
-                    if (message != null)
+                    try
                     {
-                        UnityMainThreadDispatcher.Instance.Enqueue(() =>
+                        ServerMessage message = Serialization.DeserializeMessage(buffer);
+                        if (message != null)
                         {
-                            ProcessIncomingMessage(message);
-                        });
+                            UnityMainThreadDispatcher.Instance.Enqueue(() =>
+                            {
+                                ProcessIncomingMessage(message);
+                            });
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"Deserialization error: {ex}");
                     }
                 }
             }
             catch (Exception e)
             {
+                Thread.Sleep(100);
                 if (_isConnected)
                 {
                     Debug.LogError($"Receive error: {e.Message}");

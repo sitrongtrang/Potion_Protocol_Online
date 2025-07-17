@@ -27,9 +27,8 @@ public class PlayerSpawner : MonoBehaviour
         }
         
         GameObject playerObj = Instantiate(prefab, position, Quaternion.identity);
-        NetworkIdentity identity = playerObj.GetComponent<NetworkIdentity>();
         
-        if (identity == null)
+        if (!playerObj.TryGetComponent<NetworkIdentity>(out var identity))
         {
             Debug.LogError("Spawned player missing NetworkIdentity component");
             Destroy(playerObj);
