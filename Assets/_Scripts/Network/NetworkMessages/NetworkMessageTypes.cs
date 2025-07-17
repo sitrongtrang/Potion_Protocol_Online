@@ -11,12 +11,12 @@ public static class NetworkMessageTypes
 
         public static class Pregame
         {
-            public const short RequestSpawn = 100;
+            public const short RequestSpawn = 23;
         }
 
         public static class Ingame
         {
-            public const short TryMove = 200;
+            public const short TryMove = 24;
             public const short TryPickup = 201;
             public const short TryDrop = 202;
             public const short TryTransferToStation = 203;
@@ -28,7 +28,7 @@ public static class NetworkMessageTypes
 
         public static class System
         {
-            public const short Ping = 900;
+            public const short Ping = 4;
         }
     }
 
@@ -37,14 +37,14 @@ public static class NetworkMessageTypes
         public static class System
         {
             public const short AuthSuccess = 0;
-            public const short Pong = 1;
+            public const short Pong = 20;
         }
         public static class Player
         {
-            public const short Spawn = 1000;
+            public const short Spawn = 4;
             public const short Connected = 1001;
             public const short Disconnected = 1002;
-            public const short Movement = 1003;
+            public const short Movement = 5;
             public const short Inventory = 1004;
             public const short Attack = 1005;
             public const short Craft = 1006;
