@@ -62,7 +62,10 @@ public class LocalPlayerController : MonoBehaviour
 
     private object HandlePlayerMove(ServerMessage message)
     {
-        _newPosition = ((PlayerMoveMessage)message).NewPosition;
+        _newPosition = new Vector2(
+            ((PlayerMoveMessage)message).NewPositionX,
+            ((PlayerMoveMessage)message).NewPositionY
+        );
         return null;
     }
 }

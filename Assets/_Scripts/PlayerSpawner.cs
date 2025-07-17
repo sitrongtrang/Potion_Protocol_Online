@@ -71,7 +71,7 @@ public class PlayerSpawner : MonoBehaviour
     {
         TrySpawnPlayer(
             message.ReceiverId,
-            message.Position,
+            new Vector2(message.PositionX, message.PositionY),
             message.ReceiverId == NetworkManager.Instance.ClientId
         );
     }
