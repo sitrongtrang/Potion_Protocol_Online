@@ -33,15 +33,6 @@ public class NetworkTime : MonoBehaviour
         // _pingRoutine = StartCoroutine(PingLoop());
     }
 
-    private void OnEnable()
-    {
-
-    }
-
-    private void OnDisable()
-    {
-
-    }
 
     private IEnumerator PingLoop()
     {

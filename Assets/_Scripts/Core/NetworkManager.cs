@@ -21,6 +21,7 @@ public class NetworkManager : MonoBehaviour
 
     [Header("Client Identification")]
     private string _clientId; // Server-assigned ID
+    public string ClientId => _clientId;
     private string _sessionToken; // For reconnection
     private string _authToken;
     private bool _isAuthenticated;
@@ -249,20 +250,12 @@ public class NetworkManager : MonoBehaviour
     {
         _isAuthenticated = true;
         _sessionToken = message.ReconnectToken;
+        // _clientId = message.ReceiverId;
         // PlayerPrefs.SetString("SessionToken", _sessionToken);
 
         Debug.Log("Authentication successful");
     }
 
-    private void HandlePlayerSpawn(PlayerSpawnMessage message)
-    {
-        bool isLocal = message.ReceiverId == _clientId;
-        NetworkEvents.InvokePlayerSpawnRequested(
-            message.ReceiverId,
-            message.Position,
-            isLocal
-        );
-    }
     #endregion
 
     #region Public
