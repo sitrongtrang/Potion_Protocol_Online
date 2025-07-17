@@ -76,7 +76,6 @@ public static class Serialization
             string json = Encoding.UTF8.GetString(payloadBytes);
 
             // Debug.Log($"[Deserialize] type={messageType}, id={messageId}, status={statusCode}, json={json}");
-            ServerMessage server = CreateMessageFromType(messageType, json);
             return CreateMessageFromType(messageType, json);
         }
         catch (Exception e)
