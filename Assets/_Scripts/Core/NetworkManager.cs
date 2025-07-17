@@ -256,9 +256,9 @@ public class NetworkManager : MonoBehaviour
 
     private void HandlePlayerSpawn(PlayerSpawnMessage message)
     {
-        bool isLocal = message.NetworkId == _clientId;
+        bool isLocal = message.ReceiverId == _clientId;
         NetworkEvents.InvokePlayerSpawnRequested(
-            message.NetworkId,
+            message.ReceiverId,
             message.Position,
             isLocal
         );
