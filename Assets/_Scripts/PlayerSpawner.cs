@@ -8,15 +8,15 @@ public class PlayerSpawner : MonoBehaviour
     
     private void OnEnable()
     {
-        NetworkEvents.OnPlayerSpawnRequested += SpawnPlayer;
+        NetworkEvents.OnPlayerSpawnRequested += TrySpawnPlayer;
     }
     
     private void OnDisable()
     {
-        NetworkEvents.OnPlayerSpawnRequested -= SpawnPlayer;
+        NetworkEvents.OnPlayerSpawnRequested -= TrySpawnPlayer;
     }
     
-    private void SpawnPlayer(string networkId, Vector3 position, bool isLocal)
+    private void TrySpawnPlayer(string networkId, Vector3 position, bool isLocal)
     {
         GameObject prefab = isLocal ? _localPlayerPrefab : _remotePlayerPrefab;
         
