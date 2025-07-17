@@ -48,7 +48,8 @@ public class StationController : MonoBehaviour
             var craftedItem = ItemPool.Instance.GetItemById(updateMessage.CraftedItemId);
             if (craftedItem != null)
             {
-                ItemPool.Instance.SpawnItem(craftedItem.Config, updateMessage.DropPosition);
+                Vector2 dropPosition = new Vector2(updateMessage.DropPositionX, updateMessage.DropPositionY);
+                ItemPool.Instance.SpawnItem(craftedItem.Config, dropPosition);
             }
         }
 

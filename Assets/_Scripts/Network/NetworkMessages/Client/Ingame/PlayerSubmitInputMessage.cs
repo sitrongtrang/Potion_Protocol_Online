@@ -4,7 +4,7 @@ using UnityEngine;
 [Serializable]
 public class PlayerSubmitInputMessage : ClientMessage
 {
-    public float CurretPositionX;
+    public float CurrentPositionX;
     public float CurrentPositionY;
     public int SelectedSlot;
     public bool SubmitKeyDown;

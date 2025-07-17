@@ -4,7 +4,7 @@ using UnityEngine;
 [Serializable]
 public class PlayerCraftInputMessage : ClientMessage
 {
-    public float CurretPositionX;
+    public float CurrentPositionX;
     public float CurrentPositionY;
     public bool CraftKeyDown;
 

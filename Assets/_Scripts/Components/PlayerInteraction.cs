@@ -76,7 +76,8 @@ public class PlayerInteraction
 
         PlayerDropInputMessage message = new PlayerDropInputMessage
         {
-            CurrentPosition = _player.transform.position,
+            CurrentPositionX = _player.transform.position.x,
+            CurrentPositionY = _player.transform.position.y,
             SelectedSlot = idx,
             DropKeyDown = true
         };
@@ -100,7 +101,8 @@ public class PlayerInteraction
 
         PlayerTransferToStationInputMessage message = new PlayerTransferToStationInputMessage
         {
-            CurrentPosition = _player.transform.position,
+            CurrentPositionX = _player.transform.position.x,
+            CurrentPositionY = _player.transform.position.y,
             SelectedSlot = idx,
             PutToStationKeyDown = true
         };
@@ -124,7 +126,8 @@ public class PlayerInteraction
 
         PlayerSubmitInputMessage message = new PlayerSubmitInputMessage
         {
-            CurrentPosition = _player.transform.position,
+            CurrentPositionX = _player.transform.position.x,
+            CurrentPositionY = _player.transform.position.y,
             SelectedSlot = idx,
             SubmitKeyDown = true
         };
@@ -141,7 +144,8 @@ public class PlayerInteraction
 
         PlayerCraftInputMessage message = new PlayerCraftInputMessage
         {
-            CurrentPosition = _player.transform.position,
+            CurrentPositionX = _player.transform.position.x,
+            CurrentPositionY = _player.transform.position.y,
             CraftKeyDown = true
         };
         NetworkManager.Instance.SendMessage(message);
@@ -158,8 +162,10 @@ public class PlayerInteraction
                 {
                     Tag = collision.tag,
                     IsEntering = isEntering,
-                    CurrentPosition = _player.transform.position,
-                    CollisionPosition = collision.transform.position
+                    CurrentPositionX = _player.transform.position.x,
+                    CurrentPositionY = _player.transform.position.y,
+                    CollidePositionX = collision.transform.position.x,
+                    CollidePositionY = collision.transform.position.y
                 };
                 NetworkManager.Instance.SendMessage(message);
                 break;
@@ -225,19 +231,24 @@ public class PlayerInteraction
         var collideMessage = (PlayerCollideMessage)message;
         if (collideMessage == null) return null;
 
+        Vector2 collidePosition = Vector2.zero;
         switch (collideMessage.Tag)
         {
             case "Item":
-                OnCollideItem(collideMessage.CollisionPosition, collideMessage.IsEntering);
+                collidePosition = new Vector2(collideMessage.CollidePositionX, collideMessage.CollidePositionY);
+                OnCollideItem(collidePosition, collideMessage.IsEntering);
                 break;
             case "Station":
-                OnCollideStation(collideMessage.CollisionPosition, collideMessage.IsEntering);
+                collidePosition = new Vector2(collideMessage.CollidePositionX, collideMessage.CollidePositionY);
+                OnCollideStation(collidePosition, collideMessage.IsEntering);
                 break;
             case "SubmissionPoint":
-                OnCollideSubmissionPoint(collideMessage.CollisionPosition, collideMessage.IsEntering);
+                collidePosition = new Vector2(collideMessage.CollidePositionX, collideMessage.CollidePositionY);
+                OnCollideSubmissionPoint(collidePosition, collideMessage.IsEntering);
                 break;
             case "CraftPoint":
-                OnCollideCraftPoint(collideMessage.CollisionPosition, collideMessage.IsEntering);
+                collidePosition = new Vector2(collideMessage.CollidePositionX, collideMessage.CollidePositionY);
+                OnCollideCraftPoint(collidePosition, collideMessage.IsEntering);
                 break;
         }
 

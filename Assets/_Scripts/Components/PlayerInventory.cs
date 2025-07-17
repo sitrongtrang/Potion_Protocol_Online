@@ -110,7 +110,8 @@ public class PlayerInventory
                 item = RemoveItem(inventoryMessage.ItemId, inventoryMessage.SlotIndex);
                 if (item is not null and ItemController icDrop)
                 {
-                    ItemPool.Instance.SpawnItem(icDrop.Config, inventoryMessage.DropPosition);
+                    Vector2 dropPosition = new Vector2(inventoryMessage.DropPositionX, inventoryMessage.DropPositionY);
+                    ItemPool.Instance.SpawnItem(icDrop.Config, dropPosition);
                 }
                 break;
             case "Transfer":
