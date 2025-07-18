@@ -88,7 +88,7 @@ public class PlayerInventory
     public object HandlePlayerInventory(ServerMessage message)
     {
         var inventoryMessage = (PlayerInventoryMessage)message;
-        if (inventoryMessage.ReceiverId != _player.NetIdentity.ClientId) return null;
+        if (inventoryMessage.ReceiverId != _player.Identity.ClientId) return null;
 
         if (inventoryMessage.SlotIndex < 0 || inventoryMessage.SlotIndex >= GameConstants.MaxSlot)
         {

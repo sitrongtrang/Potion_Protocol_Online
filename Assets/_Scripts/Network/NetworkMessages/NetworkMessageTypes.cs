@@ -80,8 +80,9 @@ public static class NetworkMessageTypes
 
         public static class GameState
         {
-            public const short ScoreUpdate = 1500;
-            public const short TimeUpdate = 1501;
+            public const short StateUpdate = 1500;
+            public const short ScoreUpdate = 1501;
+            public const short TimeUpdate = 1502;
         }
     }
 }

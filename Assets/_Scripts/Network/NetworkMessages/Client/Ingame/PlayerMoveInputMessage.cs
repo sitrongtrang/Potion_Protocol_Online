@@ -4,11 +4,8 @@ using UnityEngine;
 [Serializable]
 public class PlayerMoveInputMessage : ClientMessage
 {
-    [JsonProperty("currentPositionX")]
-    public float CurrentPositionX;
-    [JsonProperty("currentPositionY")]
-    public float CurrentPositionY;
-    // public Quaternion CurrentRotation;
+    [JsonProperty("inputSequence")]
+    public uint Sequence;
     [JsonProperty("moveDirectionX")]
     public float MoveDirectionX;
     [JsonProperty("moveDirectionY")]

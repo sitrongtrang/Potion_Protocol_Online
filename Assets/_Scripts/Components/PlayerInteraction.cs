@@ -22,7 +22,7 @@ public class PlayerInteraction
         _inputManager.controls.Player.Drop.performed += ctx => OnDropPerformed();
         _inputManager.controls.Player.Transfer.performed += ctx => OnTransferPerformed();
         _inputManager.controls.Player.Submit.performed += ctx => OnSubmitPerformed();
-        _inputManager.controls.Player.Craft.performed += ctx => OnCraftPerformed();
+        _inputManager.controls.Player.Combine.performed += ctx => OnCraftPerformed();
 
         _itemsInCollision.Clear();
         _nearbyStation = Vector2.positiveInfinity;

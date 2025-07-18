@@ -213,7 +213,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Craft",
+                    "name": "Combine",
                     "type": "Button",
                     "id": "6df1a899-8122-4ef5-9c0a-8bbb2cfe1c40",
                     "expectedControlType": "",
@@ -778,7 +778,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Craft",
+                    "action": "Combine",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

@@ -26,6 +26,7 @@ public abstract class ServerMessage : NetworkMessage
     [JsonProperty("clientId")]
     public string ReceiverId;
     public int StatusCode;
+    [JsonProperty("serverTime")]
     public double ServerTimeStamp;
     protected ServerMessage(short messageType) : base(messageType) { }
 }
