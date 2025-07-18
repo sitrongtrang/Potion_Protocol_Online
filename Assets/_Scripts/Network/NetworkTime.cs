@@ -51,7 +51,7 @@ public class NetworkTime : MonoBehaviour
 
         var ping = new PingMessage
         {
-            Timestamp = _lastPingSendTime
+            ClientSendTime = _lastPingSendTime
         };
 
         NetworkManager.Instance.SendMessage(ping);
