@@ -38,7 +38,7 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        if (!playerObj.TryGetComponent<LocalPlayerController>(out var localPlayerController))
+        if (playerObj.TryGetComponent<LocalPlayerController>(out var localPlayerController))
         {
             InputManager inputManager = new InputManager(_inputActionAsset);
             localPlayerController.Initialize(inputManager);
