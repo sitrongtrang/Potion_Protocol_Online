@@ -7,8 +7,6 @@ public class PongMessage : ServerMessage
     public double ClientSendTime;
     [JsonProperty("serverReceiveTime")]
     public double ServerReceiveTime;
-    [JsonProperty("serverSendTime")]
-    public double ServerSendTime;
 
     public PongMessage() : base(NetworkMessageTypes.Server.System.Pong) { }
 }

@@ -17,8 +17,8 @@ public abstract class ClientMessage : NetworkMessage
     [JsonProperty("clientId")]
     public string SenderId;
     [JsonProperty("timestamp")]
-    public double Timestamp;
-    protected ClientMessage(short messageType) : base(messageType) { Timestamp = TimeSyncUtils.GetUnixTimeMilliseconds(); }
+    public double ClientSendTime;
+    protected ClientMessage(short messageType) : base(messageType) { ClientSendTime = TimeSyncUtils.GetUnixTimeMilliseconds(); }
 }
 
 public abstract class ServerMessage : NetworkMessage
@@ -27,6 +27,6 @@ public abstract class ServerMessage : NetworkMessage
     public string ReceiverId;
     public int StatusCode;
     [JsonProperty("serverTime")]
-    public double ServerTimeStamp;
+    public double ServerSendTime;
     protected ServerMessage(short messageType) : base(messageType) { }
 }
