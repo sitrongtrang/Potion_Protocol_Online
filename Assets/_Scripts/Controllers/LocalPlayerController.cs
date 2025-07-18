@@ -1,16 +1,21 @@
 using UnityEngine;
 
-[RequireComponent(typeof(NetworkIdentity))]
+[RequireComponent(typeof(NetworkIdentity)), RequireComponent(typeof(Rigidbody2D))]
 public class LocalPlayerController : MonoBehaviour
 {
-    public string PlayerId { get; private set; }
+    [Header("Components")]
+    private Rigidbody2D _rb;
+    public NetworkIdentity Identity { get; private set; }
+    
+    [Header("Movement")]
+    private Vector2 _moveDir;
     private InputManager _inputManager;
+
+    [Header("Game Components")]
     public PlayerInventory Inventory { get; private set; }
     public PlayerInteraction Interaction { get; private set; }
 
-    private Vector2 _newPosition;
-    private NetworkIdentity _netIdentity;
-    public NetworkIdentity NetIdentity => _netIdentity;
+    #region Unity Lifecycle
     void OnEnable()
     {
         NetworkEvents.OnMessageReceived += HandleNetworkMessage;
@@ -21,36 +26,50 @@ public class LocalPlayerController : MonoBehaviour
     }
     void Start()
     {
-        _netIdentity = GetComponent<NetworkIdentity>();
+        Identity = GetComponent<NetworkIdentity>();
+        _rb = GetComponent<Rigidbody2D>();
     }
     void Update()
     {
-        var x = Input.GetAxisRaw("Horizontal");
-        var y = Input.GetAxisRaw("Vertical");
-
-        // NetworkManager.Instance.SendMessage(new PlayerMoveInputMessage
-        // {
-        //     CurrentPosition = transform.position,
-        //     CurrentRotation = transform.rotation,
-        //     DashKeyDown = false,
-        //     MoveDirection = new Vector2(x, y).normalized,
-        // });
+        if (!Identity.IsLocalPlayer) return;
+        _moveDir = _inputManager.controls.Player.Move.ReadValue<Vector2>().normalized;
     }
 
     void FixedUpdate()
     {
-        transform.position = _newPosition;
+        if (Identity.IsLocalPlayer)
+            HandleLocalMovemnt();
+        else
+            HandleRemoteMovement();
     }
+    #endregion
 
+    #region Initialize
     public void Initialize(InputManager inputManager)
     {
+        _inputManager = inputManager;
+
         Inventory = new PlayerInventory();
         Interaction = new PlayerInteraction();
 
         Inventory.Initialize(this, inputManager);
         Interaction.Initialize(this, inputManager);
     }
+    #endregion
 
+    #region Client State
+    private void HandleLocalMovemnt()
+    {
+
+    }
+    private void HandleRemoteMovement()
+    {
+
+    }
+    #endregion
+
+
+    #region Server Message
     private void HandleNetworkMessage(ServerMessage message)
     {
         var result = message.MessageType switch
@@ -62,10 +81,8 @@ public class LocalPlayerController : MonoBehaviour
 
     private object HandlePlayerMove(ServerMessage message)
     {
-        _newPosition = new Vector2(
-            ((PlayerMoveMessage)message).NewPositionX,
-            ((PlayerMoveMessage)message).NewPositionY
-        );
+
         return null;
     }
+    #endregion
 }

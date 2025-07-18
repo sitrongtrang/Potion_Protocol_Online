@@ -1,10 +1,13 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerSpawner : MonoBehaviour
 {
     [Header("Prefabs")]
     [SerializeField] private GameObject _localPlayerPrefab;
     [SerializeField] private GameObject _remotePlayerPrefab;
+
+    [SerializeField] private InputActionAsset _inputActionAsset;
     private void OnEnable()
     {
         NetworkEvents.OnMessageReceived += HandleNetworkMessage;
@@ -17,7 +20,8 @@ public class PlayerSpawner : MonoBehaviour
 
     private void TrySpawnPlayer(string networkId, Vector2 position, bool isLocal)
     {
-        GameObject prefab = isLocal ? _localPlayerPrefab : _remotePlayerPrefab;
+        // GameObject prefab = isLocal ? _localPlayerPrefab : _remotePlayerPrefab;
+        GameObject prefab = _localPlayerPrefab;
 
         if (prefab == null)
         {
@@ -32,6 +36,12 @@ public class PlayerSpawner : MonoBehaviour
             Debug.LogError("Spawned player missing NetworkIdentity component");
             Destroy(playerObj);
             return;
+        }
+
+        if (!playerObj.TryGetComponent<LocalPlayerController>(out var localPlayerController))
+        {
+            InputManager inputManager = new InputManager(_inputActionAsset);
+            localPlayerController.Initialize(inputManager);
         }
 
         identity.Initialize(networkId, isLocal);

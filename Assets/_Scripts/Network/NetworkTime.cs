@@ -30,7 +30,7 @@ public class NetworkTime : MonoBehaviour
 
     private void Start()
     {
-        // _pingRoutine = StartCoroutine(PingLoop());
+        _pingRoutine = StartCoroutine(PingLoop());
     }
 
 
@@ -71,7 +71,7 @@ public class NetworkTime : MonoBehaviour
 
         _awaitingPong = false;
 
-        // Debug.Log($"[TimeSync] RTT: {RoundTripTime:F4}ms, Offset: {ClockOffset:F4}ms, ServerTime: {EstimatedServerTime:F4}ms");
+        Debug.Log($"[TimeSync] RTT: {RoundTripTime:F4}ms, Offset: {ClockOffset:F4}ms, ServerTime: {EstimatedServerTime:F4}ms");
     }
 
     #region Public
