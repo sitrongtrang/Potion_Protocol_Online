@@ -4,8 +4,6 @@ using UnityEngine;
 [Serializable]
 public class PlayerMoveInputMessage : ClientMessage
 {
-    [JsonProperty("inputSequence")]
-    public uint Sequence;
     [JsonProperty("moveDirectionX")]
     public float MoveDirectionX;
     [JsonProperty("moveDirectionY")]

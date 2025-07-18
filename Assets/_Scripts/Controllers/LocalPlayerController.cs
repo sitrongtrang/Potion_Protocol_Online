@@ -3,6 +3,11 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkIdentity)), RequireComponent(typeof(Rigidbody2D))]
 public class LocalPlayerController : MonoBehaviour
 {
+    [Header("Constants")]
+    private const int CLIENT_SEND_RATE = 20;
+    private const int FIXED_UPDATE_RATE = 60;
+    private const int SEND_EVERY_N_FIXED_UPDATES = FIXED_UPDATE_RATE / CLIENT_SEND_RATE; // 3
+    
     [Header("Components")]
     private Rigidbody2D _rb;
     public NetworkIdentity Identity { get; private set; }
