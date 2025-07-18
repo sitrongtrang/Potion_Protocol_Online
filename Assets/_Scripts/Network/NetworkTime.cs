@@ -24,8 +24,6 @@ public class NetworkTime : MonoBehaviour
     public double EstimatedServerTime => TimeSyncUtils.GetUnixTimeMilliseconds() + ClockOffset;
     public double RoundTripTime { get; private set; }
     public double ClockOffset { get; private set; }
-
-    private double _lastPingSendTime;
     private bool _awaitingPong;
 
     private void Start()
@@ -46,12 +44,11 @@ public class NetworkTime : MonoBehaviour
     [ContextMenu("Ping")]
     private void SendPing()
     {
-        _lastPingSendTime = TimeSyncUtils.GetUnixTimeMilliseconds();
         _awaitingPong = true;
 
         var ping = new PingMessage
         {
-            ClientSendTime = _lastPingSendTime
+            ClientSendTime = TimeSyncUtils.GetUnixTimeMilliseconds()
         };
 
         NetworkManager.Instance.SendMessage(ping);
