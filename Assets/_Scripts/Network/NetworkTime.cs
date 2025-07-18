@@ -17,6 +17,8 @@ public class NetworkTime : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    [Header("Constants")]
+    public const int AVG_RTT = 150;
     [Header("Ping Settings")]
     private const double SmoothingFactor = 0.1;
     [SerializeField] private float _pingIntervalInSeconds = 5f;
@@ -32,6 +34,14 @@ public class NetworkTime : MonoBehaviour
         _pingRoutine = StartCoroutine(PingLoop());
     }
 
+    void OnDestroy()
+    {
+        if (_pingRoutine != null)
+        {
+            StopCoroutine(_pingRoutine);
+            _pingRoutine = null;
+        }
+    }
 
     private IEnumerator PingLoop()
     {
@@ -42,7 +52,9 @@ public class NetworkTime : MonoBehaviour
         }
     }
 
-    [ContextMenu("Ping")]
+    
+
+
     private void SendPing()
     {
         _awaitingPong = true;
