@@ -21,13 +21,14 @@ public class NetworkTime : MonoBehaviour
     private const double SmoothingFactor = 0.1;
     [SerializeField] private float _pingIntervalInSeconds = 5f;
     private Coroutine _pingRoutine;
-    public double EstimatedServerTime => TimeSyncUtils.GetUnixTimeMilliseconds() + ClockOffset;
-    public double RoundTripTime { get; private set; }
-    public double ClockOffset { get; private set; }
+    public long EstimatedServerTime => TimeSyncUtils.GetUnixTimeMilliseconds() + ClockOffset;
+    public long RoundTripTime { get; private set; }
+    public long ClockOffset { get; private set; }
     private bool _awaitingPong;
 
     private void Start()
     {
+        
         _pingRoutine = StartCoroutine(PingLoop());
     }
 
@@ -58,26 +59,17 @@ public class NetworkTime : MonoBehaviour
     {
         if (!_awaitingPong) return;
 
-        double now = TimeSyncUtils.GetUnixTimeMilliseconds();
+        long now = TimeSyncUtils.GetUnixTimeMilliseconds();
         RoundTripTime = now - pong.ClientSendTime;
 
         // if (RoundTripTime > 300) return; // Ignore bad sample
 
-        double estimatedServerTime = pong.ServerReceiveTime + (RoundTripTime / 2.0);
-        ClockOffset = (1 - SmoothingFactor) * ClockOffset + SmoothingFactor * (estimatedServerTime - now);
+        long estimatedServerTime = (long)(pong.ServerReceiveTime + (RoundTripTime / 2.0));
+        ClockOffset = (long)((1 - SmoothingFactor) * ClockOffset + SmoothingFactor * (estimatedServerTime - now));
 
         _awaitingPong = false;
 
         Debug.Log($"[TimeSync] RTT: {RoundTripTime:F4}ms, Offset: {ClockOffset:F4}ms, ServerTime: {EstimatedServerTime:F4}ms");
     }
-
-    #region Public
-    public double GetServerTime()
-    {
-        return TimeSyncUtils.GetUnixTimeMilliseconds() + ClockOffset;
-    }
-    #endregion
-
-
 
 }
