@@ -4,6 +4,8 @@ using UnityEngine;
 [Serializable]
 public class PlayerMoveInputMessage : ClientMessage
 {
+    [JsonProperty("clientEstimatedServerTime")]
+    public long ClientEstimatedServerTime;
     [JsonProperty("moveDirectionX")]
     public float MoveDirectionX;
     [JsonProperty("moveDirectionY")]
