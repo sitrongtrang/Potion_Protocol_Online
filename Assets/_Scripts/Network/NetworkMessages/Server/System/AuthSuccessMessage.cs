@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 
 [Serializable]
 public class AuthSuccessMessage : ServerMessage

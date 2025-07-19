@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
-using TMPro; // optional, if using TextMeshPro UI
+using TMPro;
+using Newtonsoft.Json; // optional, if using TextMeshPro UI
 
 public class LoginManager : MonoBehaviour
 {
@@ -22,7 +23,7 @@ public class LoginManager : MonoBehaviour
             Password = password
         };
 
-        string json = JsonUtilityWrapper.ToJson(loginData);
+        string json = JsonConvert.SerializeObject(loginData, Serialization.Settings);
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
 
         UnityWebRequest request = new UnityWebRequest(_loginUrl.StaticURL, "POST");
@@ -37,7 +38,7 @@ public class LoginManager : MonoBehaviour
             // Debug.Log("Login successful: " + request.downloadHandler.text);
             // Parse token or user info if needed
 
-            LoginSuccess loginSuccess = JsonUtilityWrapper.FromJson<LoginSuccess>(request.downloadHandler.text);
+            LoginSuccess loginSuccess = JsonConvert.DeserializeObject<LoginSuccess>(request.downloadHandler.text, Serialization.Settings);
             NetworkManager.Instance.SetAuthenToken(loginSuccess.LoginSuccessDat.Token);
             NetworkManager.Instance.SetClientId(loginSuccess.LoginSuccessDat.UserId);
             NetworkManager.Instance.Authenticate();
