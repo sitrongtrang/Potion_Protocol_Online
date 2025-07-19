@@ -20,7 +20,6 @@ public abstract class ClientMessage : NetworkMessage
     public string SenderId;
     [JsonProperty("clientSendTime")]
     public long ClientSendTime;
-    public int InputSequence;
     public long ClientEstimatedServerTime;
     protected ClientMessage(short messageType) : base(messageType)
     {
@@ -38,4 +37,10 @@ public abstract class ServerMessage : NetworkMessage
     public long ServerSendTime;
     public int ProcessedInputSequence;
     protected ServerMessage(short messageType) : base(messageType) { }
+}
+
+public class BatchPlayerInputMessage : ClientMessage
+{
+    public PlayerInputMessage[] PlayerInputMessages;
+    public BatchPlayerInputMessage() : base(NetworkMessageTypes.Client.Ingame.Input) { }
 }

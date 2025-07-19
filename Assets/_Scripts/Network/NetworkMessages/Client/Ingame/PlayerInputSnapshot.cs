@@ -1,5 +1,7 @@
 public class PlayerInputMessage : ClientMessage
 {
+    public int InputSequence;
+
     public float MoveDirX;
     public float MoveDirY;
     public bool DashKeyDown;
