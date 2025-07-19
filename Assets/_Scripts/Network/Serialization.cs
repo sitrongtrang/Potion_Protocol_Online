@@ -3,11 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
+using Newtonsoft.Json;
+
 
 public static class Serialization
 {
     // You must assign this from the outside (before serializing)
     public static Func<ClientMessage, int> GenerateMessageId = _ => UnityEngine.Random.Range(1, int.MaxValue);
+    public static readonly JsonSerializerSettings Settings = new()
+    {
+        ContractResolver = new JsonPropertyOnlyContractResolver(),
+        // Formatting = Formatting.Indented
+    };
 
     /// <summary>
     /// Serialize a NetworkMessage into the binary format expected by the Java server.
@@ -19,7 +26,7 @@ public static class Serialization
             int messageId = GenerateMessageId?.Invoke(message) ?? UnityEngine.Random.Range(1, int.MaxValue);
 
             // 1. Wrap and encode JSON
-            string payloadJson = JsonUtilityWrapper.ToJson(message);
+            string payloadJson = JsonConvert.SerializeObject(message);
             string wrappedJson = "{\"payload\":" + payloadJson + "}";
             byte[] payloadBytes = Encoding.UTF8.GetBytes(wrappedJson);
 
@@ -103,37 +110,37 @@ public static class Serialization
         return messageType switch
         {
             // Only have cases for server broadcast json
-            NetworkMessageTypes.Server.System.AuthSuccess => JsonUtilityWrapper.FromJson<AuthSuccessMessage>(json),
-            NetworkMessageTypes.Server.System.Pong => JsonUtilityWrapper.FromJson<PongMessage>(json),
-            // NetworkMessageTypes.System.Kick => JsonUtilityWrapper.FromJson<KickMessage>(json),
+            NetworkMessageTypes.Server.System.AuthSuccess => JsonConvert.DeserializeObject<AuthSuccessMessage>(json,Settings),
+            NetworkMessageTypes.Server.System.Pong => JsonConvert.DeserializeObject<PongMessage>(json,Settings),
+            // NetworkMessageTypes.System.Kick => JsonConvert.DeserializeObject<KickMessage>(json,settings),settings,
 
-            NetworkMessageTypes.Server.Player.Spawn => JsonUtilityWrapper.FromJson<PlayerSpawnMessage>(json),
-            NetworkMessageTypes.Server.Player.Connected => JsonUtilityWrapper.FromJson<PlayerConnectedMessage>(json),
-            NetworkMessageTypes.Server.Player.Disconnected => JsonUtilityWrapper.FromJson<PlayerDisconnectedMessage>(json),
-            NetworkMessageTypes.Server.Player.Movement => JsonUtilityWrapper.FromJson<PlayerMoveMessage>(json),
-            NetworkMessageTypes.Server.Player.Inventory => JsonUtilityWrapper.FromJson<PlayerInventoryMessage>(json),
-            NetworkMessageTypes.Server.Player.Attack => JsonUtilityWrapper.FromJson<PlayerAttackMessage>(json),
-            NetworkMessageTypes.Server.Player.Craft => JsonUtilityWrapper.FromJson<PlayerCraftMessage>(json),
-            NetworkMessageTypes.Server.Player.Submit => JsonUtilityWrapper.FromJson<PlayerSubmitMessage>(json),
-             NetworkMessageTypes.Server.Player.Collide => JsonUtilityWrapper.FromJson<PlayerCollideMessage>(json),
+            NetworkMessageTypes.Server.Player.Spawn => JsonConvert.DeserializeObject<PlayerSpawnMessage>(json,Settings),
+            NetworkMessageTypes.Server.Player.Connected => JsonConvert.DeserializeObject<PlayerConnectedMessage>(json,Settings),
+            NetworkMessageTypes.Server.Player.Disconnected => JsonConvert.DeserializeObject<PlayerDisconnectedMessage>(json,Settings),
+            NetworkMessageTypes.Server.Player.Movement => JsonConvert.DeserializeObject<PlayerMoveMessage>(json,Settings),
+            NetworkMessageTypes.Server.Player.Inventory => JsonConvert.DeserializeObject<PlayerInventoryMessage>(json,Settings),
+            NetworkMessageTypes.Server.Player.Attack => JsonConvert.DeserializeObject<PlayerAttackMessage>(json,Settings),
+            NetworkMessageTypes.Server.Player.Craft => JsonConvert.DeserializeObject<PlayerCraftMessage>(json,Settings),
+            NetworkMessageTypes.Server.Player.Submit => JsonConvert.DeserializeObject<PlayerSubmitMessage>(json,Settings),
+             NetworkMessageTypes.Server.Player.Collide => JsonConvert.DeserializeObject<PlayerCollideMessage>(json,Settings),
 
-            NetworkMessageTypes.Server.Station.Update => JsonUtilityWrapper.FromJson<StationUpdateMessage>(json),
-            NetworkMessageTypes.Server.Station.Craft => JsonUtilityWrapper.FromJson<StationCraftMessage>(json),
+            NetworkMessageTypes.Server.Station.Update => JsonConvert.DeserializeObject<StationUpdateMessage>(json,Settings),
+            NetworkMessageTypes.Server.Station.Craft => JsonConvert.DeserializeObject<StationCraftMessage>(json,Settings),
 
-            NetworkMessageTypes.Server.Item.Drop => JsonUtilityWrapper.FromJson<ItemDropMessage>(json),
-            // NetworkMessageTypes.Server.Item.Spawn => JsonUtilityWrapper.FromJson<ItemDropMessage>(json),
-            // NetworkMessageTypes.Server.Item.Pickuped => JsonUtilityWrapper.FromJson<ItemDropMessage>(json),
-            // NetworkMessageTypes.Server.Item.Despawn => JsonUtilityWrapper.FromJson<ItemDropMessage>(json),
+            NetworkMessageTypes.Server.Item.Drop => JsonConvert.DeserializeObject<ItemDropMessage>(json,Settings),
+            // NetworkMessageTypes.Server.Item.Spawn => JsonConvert.DeserializeObject<ItemDropMessage>(json,settings),
+            // NetworkMessageTypes.Server.Item.Pickuped => JsonConvert.DeserializeObject<ItemDropMessage>(json,settings),
+            // NetworkMessageTypes.Server.Item.Despawn => JsonConvert.DeserializeObject<ItemDropMessage>(json,settings),settings,
 
-            NetworkMessageTypes.Server.Enemy.Spawn => JsonUtilityWrapper.FromJson<EnemySpawnMessage>(json),
-            NetworkMessageTypes.Server.Enemy.Move => JsonUtilityWrapper.FromJson<EnemyMoveMessage>(json),
-            NetworkMessageTypes.Server.Enemy.Death => JsonUtilityWrapper.FromJson<EnemyDeathMessage>(json),
+            NetworkMessageTypes.Server.Enemy.Spawn => JsonConvert.DeserializeObject<EnemySpawnMessage>(json,Settings),
+            NetworkMessageTypes.Server.Enemy.Move => JsonConvert.DeserializeObject<EnemyMoveMessage>(json,Settings),
+            NetworkMessageTypes.Server.Enemy.Death => JsonConvert.DeserializeObject<EnemyDeathMessage>(json,Settings),
 
-            NetworkMessageTypes.Server.Resource.Spawn => JsonUtilityWrapper.FromJson<ResourceSpawnMessage>(json),
-            NetworkMessageTypes.Server.Resource.Harvested => JsonUtilityWrapper.FromJson<ResourceHarvestedMessage>(json),
+            NetworkMessageTypes.Server.Resource.Spawn => JsonConvert.DeserializeObject<ResourceSpawnMessage>(json,Settings),
+            NetworkMessageTypes.Server.Resource.Harvested => JsonConvert.DeserializeObject<ResourceHarvestedMessage>(json,Settings),
 
-            NetworkMessageTypes.Server.GameState.ScoreUpdate => JsonUtilityWrapper.FromJson<GameScoreUpdateMessage>(json),
-            NetworkMessageTypes.Server.GameState.TimeUpdate => JsonUtilityWrapper.FromJson<GameTimeUpdateMessage>(json),
+            NetworkMessageTypes.Server.GameState.ScoreUpdate => JsonConvert.DeserializeObject<GameScoreUpdateMessage>(json,Settings),
+            NetworkMessageTypes.Server.GameState.TimeUpdate => JsonConvert.DeserializeObject<GameTimeUpdateMessage>(json,Settings),
 
 
             _ => null
