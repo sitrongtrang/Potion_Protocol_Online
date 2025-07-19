@@ -23,7 +23,7 @@ public class NetworkPredictionBuffer<TInput, TState>
     {
         _currentInputSequence += 1;
         return _currentInputSequence;
-        
+
     }
 
     public void EnqueueInput(TInput input)
@@ -40,5 +40,10 @@ public class NetworkPredictionBuffer<TInput, TState>
             _stateBuffer.Dequeue();
 
         _stateBuffer.Enqueue(state);
+    }
+
+    public void ClearStateBuffer()
+    {
+        _stateBuffer.Clear();
     }
 }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(NetworkIdentity)), RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(NetworkIdentity))]
 public class LocalPlayerController : MonoBehaviour
 {
     [Header("Constants")]
@@ -12,11 +12,11 @@ public class LocalPlayerController : MonoBehaviour
     private float _simTimer = 0f;
     private float _sendTimer = 0f;
     public NetworkIdentity Identity { get; private set; }
-    private Rigidbody2D _rb;
 
     [Header("Syncing")]
+    private bool _isReconciling = false;
     private PlayerInputSnapshot _inputListener = new();
-    private NetworkPredictionBuffer<InputSnapshot, StateSnapshot> _networkPredictionBuffer = new(12);
+    private NetworkPredictionBuffer<InputSnapshot, PlayerSnapshot> _networkPredictionBuffer = new(12);
 
     [Header("Movement")]
     private Vector2 _moveDir;
@@ -38,7 +38,6 @@ public class LocalPlayerController : MonoBehaviour
     void Start()
     {
         Identity = GetComponent<NetworkIdentity>();
-        _rb = GetComponent<Rigidbody2D>();
     }
     void Update()
     {
@@ -90,9 +89,10 @@ public class LocalPlayerController : MonoBehaviour
     #endregion
 
     #region Initialization
-    public void Initialize(InputManager inputManager)
+    public void Initialize(InputManager inputManager, string id, bool isLocal)
     {
         _inputManager = inputManager;
+        Identity.Initialize(id, isLocal);
 
         Inventory = new PlayerInventory();
         Interaction = new PlayerInteraction();
@@ -105,6 +105,8 @@ public class LocalPlayerController : MonoBehaviour
     #region Simulation
     private void Simulate(PlayerInputSnapshot inputSnapshot)
     {
+        if (_isReconciling) return;
+
         PlayerInputSnapshot cpy = new(inputSnapshot);
 
         // if (playerInputSnapshot.PickupPressed && TryPickup())
@@ -130,12 +132,12 @@ public class LocalPlayerController : MonoBehaviour
     {
         inputSnapshot.InputSequence = _networkPredictionBuffer.GetCurrentInputSequence();
 
-        _rb.MovePosition(_rb.position + 5 * Time.fixedDeltaTime * inputSnapshot.MoveDir);
+        transform.position = transform.position + (Vector3)(5 * SIM_TICK_INTERVAL * inputSnapshot.MoveDir);
 
         PlayerSnapshot playerSnapshot = new()
         {
             ProcessedInputSequence = inputSnapshot.InputSequence,
-            Position = _rb.position,
+            Position = transform.position,
         };
 
         _networkPredictionBuffer.EnqueueInput(inputSnapshot);
@@ -199,12 +201,30 @@ public class LocalPlayerController : MonoBehaviour
     }
     private void ReconcileServer(PlayerMoveMessage message, InputSnapshot[] inputSnapshots, int fromIndex)
     {
+        _isReconciling = true;
+        _networkPredictionBuffer.ClearStateBuffer();
+
+        int processedInputSequence = message.ProcessedInputSequence;
+        _networkPredictionBuffer.EnqueueState(new PlayerSnapshot
+        {
+            ProcessedInputSequence = processedInputSequence,
+            Position = new(message.PositionX, message.PositionY)
+        });
+
+        transform.position = new Vector2(message.PositionX, message.PositionY);
         for (int i = fromIndex; i < inputSnapshots.Length; i++)
         {
-            _rb.position = new Vector2(message.PositionX, message.PositionY);
             Vector2 moveDir = ((PlayerInputSnapshot)inputSnapshots[i]).MoveDir;
-            _rb.MovePosition(_rb.position + 5f * Time.fixedDeltaTime * moveDir);
+            transform.position = transform.position + (Vector3)(5f * SIM_TICK_INTERVAL * moveDir);
+
+            _networkPredictionBuffer.EnqueueState(new PlayerSnapshot
+            {
+                ProcessedInputSequence = inputSnapshots[i].InputSequence,
+                Position = transform.position
+            });
         }
+
+        _isReconciling = false;
     }
     #endregion
 

@@ -31,20 +31,13 @@ public class PlayerSpawner : MonoBehaviour
 
         GameObject playerObj = Instantiate(prefab, position, Quaternion.identity);
 
-        if (!playerObj.TryGetComponent<NetworkIdentity>(out var identity))
+        if (!playerObj.TryGetComponent<LocalPlayerController>(out var localPlayerController))
         {
-            Debug.LogError("Spawned player missing NetworkIdentity component");
-            Destroy(playerObj);
-            return;
+            Debug.LogError("Wrong player object");
         }
 
-        if (playerObj.TryGetComponent<LocalPlayerController>(out var localPlayerController))
-        {
-            InputManager inputManager = new InputManager(_inputActionAsset);
-            localPlayerController.Initialize(inputManager);
-        }
-
-        identity.Initialize(networkId, isLocal);
+        InputManager inputManager = new InputManager(_inputActionAsset);
+        localPlayerController.Initialize(inputManager, networkId, isLocal);
 
         // Additional setup
         if (isLocal)
