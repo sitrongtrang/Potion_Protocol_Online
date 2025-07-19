@@ -16,6 +16,7 @@ public static class NetworkMessageTypes
 
         public static class Ingame
         {
+            public const short Input = 299;
             public const short TryMove = 200;
             public const short TryPickup = 201;
             public const short TryDrop = 202;
