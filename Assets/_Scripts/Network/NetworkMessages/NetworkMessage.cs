@@ -35,7 +35,6 @@ public abstract class ServerMessage : NetworkMessage
     public string ReceiverId;
     [JsonProperty("serverSendTime")]
     public long ServerSendTime;
-    public int ProcessedInputSequence;
     protected ServerMessage(short messageType) : base(messageType) { }
 }
 
