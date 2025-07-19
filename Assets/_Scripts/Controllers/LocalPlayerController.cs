@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[RequireComponent(typeof(NetworkIdentity)), RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(NetworkIdentity))]
 public class LocalPlayerController : MonoBehaviour
 {
     [Header("Constants")]
@@ -9,7 +9,6 @@ public class LocalPlayerController : MonoBehaviour
     private const int SEND_EVERY_N_FIXED_UPDATES = FIXED_UPDATE_RATE / CLIENT_SEND_RATE; // 3
     
     [Header("Components")]
-    private Rigidbody2D _rb;
     public NetworkIdentity Identity { get; private set; }
     
     [Header("Movement")]
@@ -32,7 +31,6 @@ public class LocalPlayerController : MonoBehaviour
     void Start()
     {
         Identity = GetComponent<NetworkIdentity>();
-        _rb = GetComponent<Rigidbody2D>();
     }
     void Update()
     {
@@ -79,12 +77,12 @@ public class LocalPlayerController : MonoBehaviour
     {
         var result = message.MessageType switch
         {
-            NetworkMessageTypes.Server.Player.Movement => HandlePlayerMove(message),
+            NetworkMessageTypes.Server.Player.Movement => HandlePlayerMove((PlayerMoveMessage)message),
             _ => null
         };
     }
 
-    private object HandlePlayerMove(ServerMessage message)
+    private object HandlePlayerMove(PlayerMoveMessage message)
     {
 
         return null;

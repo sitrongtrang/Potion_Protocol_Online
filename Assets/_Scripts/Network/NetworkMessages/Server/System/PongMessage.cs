@@ -4,9 +4,9 @@ using System;
 public class PongMessage : ServerMessage
 {
     [JsonProperty("clientSendTime")]
-    public double ClientSendTime;
+    public long ClientSendTime;
     [JsonProperty("serverReceiveTime")]
-    public double ServerReceiveTime;
+    public long ServerReceiveTime;
 
     public PongMessage() : base(NetworkMessageTypes.Server.System.Pong) { }
 }
