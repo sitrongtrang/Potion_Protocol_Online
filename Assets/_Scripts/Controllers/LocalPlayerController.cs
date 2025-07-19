@@ -75,17 +75,7 @@ public class LocalPlayerController : MonoBehaviour
     #region Server Message
     private void HandleNetworkMessage(ServerMessage message)
     {
-        var result = message.MessageType switch
-        {
-            NetworkMessageTypes.Server.Player.Movement => HandlePlayerMove((PlayerMoveMessage)message),
-            _ => null
-        };
-    }
-
-    private object HandlePlayerMove(PlayerMoveMessage message)
-    {
-
-        return null;
+        
     }
     #endregion
 }
