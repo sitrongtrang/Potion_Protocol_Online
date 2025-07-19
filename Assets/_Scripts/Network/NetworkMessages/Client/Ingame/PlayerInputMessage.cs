@@ -14,7 +14,21 @@ public class PlayerInputMessage : ClientMessage, IInputSnapshot
     public bool CraftKeyDown;
     public bool SubmitKeyDown;
     public int SelectedSlot;
-    public PlayerInputMessage() : base(NetworkMessageTypes.Client.Ingame.Input) { }
+    public PlayerInputMessage(PlayerInputSnapshot playerInputSnapshot) : base(NetworkMessageTypes.Client.Ingame.Input)
+    {
+        MoveDirX = playerInputSnapshot.MoveDir.x;
+        MoveDirY = playerInputSnapshot.MoveDir.y;
+        DashKeyDown = playerInputSnapshot.DashPressed;
+
+        AttackKeyDown = playerInputSnapshot.AttackPressed;
+
+        PickupKeyDown = playerInputSnapshot.PickupPressed;
+        DropKeyDown = playerInputSnapshot.DropPressed;
+        CraftKeyDown = playerInputSnapshot.CombinePressed;
+        TransferKeyDown = playerInputSnapshot.TransferPressed;
+        SubmitKeyDown = playerInputSnapshot.SubmitPressed;
+
+    }
 
     int IInputSnapshot.InputSequence => InputSequence;
 }

@@ -1,10 +1,9 @@
 using UnityEngine;
-public class StateSnapshot
+
+public class PlayerSnapshot : IStateSnapshot
 {
     public int ProcessedInputSequence;
-}
-
-public class PlayerSnapshot : StateSnapshot
-{
     public Vector2 Position;
+
+    int IStateSnapshot.ProcessedInputSequence => ProcessedInputSequence;
 }
