@@ -19,8 +19,8 @@ public abstract class ClientMessage : NetworkMessage
     public string SenderId;
     [JsonProperty("clientSendTime")]
     public long ClientSendTime;
-    [JsonProperty("clientTick")]
-    public int ClientTick;
+    public int InputSequence;
+    public long ClientEstimatedServerTime;
     protected ClientMessage(short messageType) : base(messageType) { ClientSendTime = TimeSyncUtils.GetUnixTimeMilliseconds(); }
 }
 
@@ -30,7 +30,6 @@ public abstract class ServerMessage : NetworkMessage
     public string ReceiverId;
     [JsonProperty("serverSendTime")]
     public long ServerSendTime;
-    [JsonProperty("serverTick")]
-    public int ServerTick;
+    public int ProcessedInputSequence;
     protected ServerMessage(short messageType) : base(messageType) { }
 }
