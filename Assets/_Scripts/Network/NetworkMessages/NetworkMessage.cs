@@ -20,12 +20,12 @@ public abstract class ClientMessage : NetworkMessage
     public string SenderId;
     [JsonProperty("clientSendTime")]
     public long ClientSendTime;
-    public int InputSequence;
     public long ClientEstimatedServerTime;
     protected ClientMessage(short messageType) : base(messageType)
     {
         ClientSendTime = TimeSyncUtils.GetUnixTimeMilliseconds();
-        ClientEstimatedServerTime = NetworkTime.Instance.EstimatedServerTime;
+        if (NetworkTime.Instance != null)
+            ClientEstimatedServerTime = NetworkTime.Instance.EstimatedServerTime;
     }
 }
 
@@ -39,7 +39,8 @@ public abstract class ServerMessage : NetworkMessage
     protected ServerMessage(short messageType) : base(messageType) { }
 }
 
-public class BatchClientMessage
+public class BatchPlayerInputMessage : ClientMessage
 {
-    
+    public PlayerInputMessage[] PlayerInputMessages;
+    public BatchPlayerInputMessage() : base(NetworkMessageTypes.Client.Ingame.Input) { }
 }

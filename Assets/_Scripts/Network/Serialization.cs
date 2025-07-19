@@ -117,7 +117,6 @@ public static class Serialization
             NetworkMessageTypes.Server.Player.Spawn => JsonConvert.DeserializeObject<PlayerSpawnMessage>(json,Settings),
             NetworkMessageTypes.Server.Player.Connected => JsonConvert.DeserializeObject<PlayerConnectedMessage>(json,Settings),
             NetworkMessageTypes.Server.Player.Disconnected => JsonConvert.DeserializeObject<PlayerDisconnectedMessage>(json,Settings),
-            NetworkMessageTypes.Server.Player.Movement => JsonConvert.DeserializeObject<PlayerMoveMessage>(json,Settings),
             NetworkMessageTypes.Server.Player.Inventory => JsonConvert.DeserializeObject<PlayerInventoryMessage>(json,Settings),
             NetworkMessageTypes.Server.Player.Attack => JsonConvert.DeserializeObject<PlayerAttackMessage>(json,Settings),
             NetworkMessageTypes.Server.Player.Craft => JsonConvert.DeserializeObject<PlayerCraftMessage>(json,Settings),
@@ -138,7 +137,8 @@ public static class Serialization
 
             NetworkMessageTypes.Server.Resource.Spawn => JsonConvert.DeserializeObject<ResourceSpawnMessage>(json,Settings),
             NetworkMessageTypes.Server.Resource.Harvested => JsonConvert.DeserializeObject<ResourceHarvestedMessage>(json,Settings),
-
+            
+            NetworkMessageTypes.Server.GameState.StateUpdate => JsonConvert.DeserializeObject<GameStateUpdate>(json,Settings),
             NetworkMessageTypes.Server.GameState.ScoreUpdate => JsonConvert.DeserializeObject<GameScoreUpdateMessage>(json,Settings),
             NetworkMessageTypes.Server.GameState.TimeUpdate => JsonConvert.DeserializeObject<GameTimeUpdateMessage>(json,Settings),
 
