@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 public class NetworkPredictionBuffer<TInput, TState>
     where TInput : IInputSnapshot
-    where TState : StateSnapshot
+    where TState : IStateSnapshot
 {
     private readonly Queue<TInput> _inputBuffer;
     public TInput[] InputBufferAsArray => _inputBuffer.ToArray();
