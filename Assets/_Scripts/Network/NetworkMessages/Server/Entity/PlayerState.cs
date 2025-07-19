@@ -1,5 +1,7 @@
 public class PlayerState
 {
-    float PositionX;
-    float PositionY;
+    public string PlayerId;
+    public float PositionX;
+    public float PositionY;
+    public int ProcessedInputSequence;
 }

@@ -1,4 +1,4 @@
-public class PlayerInputMessage : ClientMessage
+public class PlayerInputMessage : ClientMessage, IInputSnapshot
 {
     public int InputSequence;
 
@@ -15,4 +15,6 @@ public class PlayerInputMessage : ClientMessage
     public bool SubmitKeyDown;
     public int SelectedSlot;
     public PlayerInputMessage() : base(NetworkMessageTypes.Client.Ingame.Input) { }
+
+    int IInputSnapshot.InputSequence => InputSequence;
 }

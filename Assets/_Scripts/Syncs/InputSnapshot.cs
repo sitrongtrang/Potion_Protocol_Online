@@ -1,12 +1,13 @@
 using UnityEngine;
 
-public class InputSnapshot
+public interface IInputSnapshot
 {
-    public int InputSequence;
+    public int InputSequence { get; }
 }
 
-public class PlayerInputSnapshot : InputSnapshot
+public class PlayerInputSnapshot : IInputSnapshot
 {
+    public int InputSequence;
     public bool PickupPressed;
     public bool DropPressed;
     public bool TransferPressed;
@@ -26,4 +27,6 @@ public class PlayerInputSnapshot : InputSnapshot
         TransferPressed = other.TransferPressed;
         SubmitPressed = other.SubmitPressed;
     }
+
+    int IInputSnapshot.InputSequence => InputSequence;
 }

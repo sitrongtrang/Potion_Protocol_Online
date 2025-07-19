@@ -16,7 +16,7 @@ public class LocalPlayerController : MonoBehaviour
     [Header("Syncing")]
     private bool _isReconciling = false;
     private PlayerInputSnapshot _inputListener = new();
-    private NetworkPredictionBuffer<InputSnapshot, PlayerSnapshot> _networkPredictionBuffer = new(12);
+    private NetworkPredictionBuffer<IInputSnapshot, PlayerSnapshot> _networkPredictionBuffer = new(12);
 
     [Header("Movement")]
     private Vector2 _moveDir;
@@ -152,17 +152,20 @@ public class LocalPlayerController : MonoBehaviour
     {
         switch (message.MessageType)
         {
-            case NetworkMessageTypes.Server.Player.Movement:
-                HandlePlayerMove((PlayerMoveMessage)message);
+            case NetworkMessageTypes.Server.GameState.StateUpdate:
+                GameStateUpdate gameStateUpdate = (GameStateUpdate)message;
+                foreach (PlayerState playerState in gameStateUpdate.PlayerStates)
+                    if (playerState.PlayerId == Identity.ClientId)
+                        HandlePlayerMove(playerState);
                 break;
         }
     }
 
-    private void HandlePlayerMove(PlayerMoveMessage message)
+    private void HandlePlayerMove(PlayerState state)
     {
         if (Identity.IsLocalPlayer)
         {
-            TryReconcileServer(message);
+            TryReconcileServer(state);
         }
         else
         {
@@ -170,12 +173,12 @@ public class LocalPlayerController : MonoBehaviour
         }
 
     }
-    private void TryReconcileServer(PlayerMoveMessage message)
+    private void TryReconcileServer(PlayerState state)
     {
-        int processedInputSequence = message.ProcessedInputSequence;
+        int processedInputSequence = state.ProcessedInputSequence;
 
         StateSnapshot[] stateSnapshots = (StateSnapshot[])_networkPredictionBuffer.StateBufferAsArray.Clone();
-        InputSnapshot[] inputSnapshots = (InputSnapshot[])_networkPredictionBuffer.InputBufferAsArray.Clone();
+        IInputSnapshot[] inputSnapshots = (IInputSnapshot[])_networkPredictionBuffer.InputBufferAsArray.Clone();
 
         bool needReconcile = false;
         int index;
@@ -184,7 +187,7 @@ public class LocalPlayerController : MonoBehaviour
             StateSnapshot stateSnapshot = stateSnapshots[index];
             if (stateSnapshot.ProcessedInputSequence == processedInputSequence)
             {
-                Vector2 serverPlayerPosition = new Vector2(message.PositionX, message.PositionY);
+                Vector2 serverPlayerPosition = new Vector2(state.PositionX, state.PositionY);
                 Vector2 historyPosition = ((PlayerSnapshot)stateSnapshot).Position;
                 if (Vector2.Distance(serverPlayerPosition, historyPosition) >= 0.1f)
                     needReconcile = true;
@@ -197,9 +200,9 @@ public class LocalPlayerController : MonoBehaviour
         index = FindFromIndex(inputSnapshots, index, processedInputSequence);
         if (index == -1) return;
 
-        ReconcileServer(message, inputSnapshots, index + 1);
+        ReconcileServer(state, inputSnapshots, index + 1);
     }
-    private void ReconcileServer(PlayerMoveMessage message, InputSnapshot[] inputSnapshots, int fromIndex)
+    private void ReconcileServer(PlayerState message, IInputSnapshot[] inputSnapshots, int fromIndex)
     {
         _isReconciling = true;
         _networkPredictionBuffer.ClearStateBuffer();
@@ -229,7 +232,7 @@ public class LocalPlayerController : MonoBehaviour
     #endregion
 
     #region Utilities
-    int FindFromIndex(InputSnapshot[] inputSnapshots, int index, int targetSequence)
+    int FindFromIndex(IInputSnapshot[] inputSnapshots, int index, int targetSequence)
     {
         int length = inputSnapshots.Length;
 
@@ -250,6 +253,7 @@ public class LocalPlayerController : MonoBehaviour
         }
 
         return -1;
+
     }
     #endregion
 }
