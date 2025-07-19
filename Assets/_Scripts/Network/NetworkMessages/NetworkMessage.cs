@@ -22,7 +22,11 @@ public abstract class ClientMessage : NetworkMessage
     public long ClientSendTime;
     public int InputSequence;
     public long ClientEstimatedServerTime;
-    protected ClientMessage(short messageType) : base(messageType) { ClientSendTime = TimeSyncUtils.GetUnixTimeMilliseconds(); }
+    protected ClientMessage(short messageType) : base(messageType)
+    {
+        ClientSendTime = TimeSyncUtils.GetUnixTimeMilliseconds();
+        ClientEstimatedServerTime = NetworkTime.Instance.EstimatedServerTime;
+    }
 }
 
 public abstract class ServerMessage : NetworkMessage
@@ -33,4 +37,9 @@ public abstract class ServerMessage : NetworkMessage
     public long ServerSendTime;
     public int ProcessedInputSequence;
     protected ServerMessage(short messageType) : base(messageType) { }
+}
+
+public class BatchClientMessage
+{
+    
 }
