@@ -260,7 +260,7 @@ public class NetworkManager : MonoBehaviour
     {
         _isAuthenticated = true;
         _sessionToken = message.ReconnectToken;
-        _clientId = message.ReceiverId;
+        _clientId = message.ClientId;
         // PlayerPrefs.SetString("SessionToken", _sessionToken);
 
         Debug.Log("Authentication successful");

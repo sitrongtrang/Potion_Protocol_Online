@@ -5,6 +5,8 @@ using UnityEngine;
 [Serializable]
 public class PlayerSpawnMessage : ServerMessage
 {
+    [JsonProperty("playerId")]
+    public string PlayerId;
     [JsonProperty("positionX")]
     public float PositionX;
     [JsonProperty("positionY")]

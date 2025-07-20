@@ -45,7 +45,7 @@ public static class NetworkMessageTypes
             public const short Spawn = 4;
             public const short Connected = 1001;
             public const short Disconnected = 1002;
-            public const short Movement = 5;
+            // public const short Movement = 5;
             public const short Inventory = 1004;
             public const short Attack = 1005;
             public const short Craft = 1006;
@@ -81,7 +81,7 @@ public static class NetworkMessageTypes
 
         public static class GameState
         {
-            public const short StateUpdate = 1500;
+            public const short StateUpdate = 5;
             public const short ScoreUpdate = 1501;
             public const short TimeUpdate = 1502;
         }

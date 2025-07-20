@@ -2,16 +2,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(NetworkIdentity))]
-public class LocalPlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
+    private const int NET_PRED_BUFFER_SIZE = 8;
     [Header("Components")]
     private float _sendTimer = 0f;
     public NetworkIdentity Identity { get; private set; }
 
     [Header("Syncing")]
+    private int _serverSequence = -1;
     private bool _isReconciling = false;
     private PlayerInputSnapshot _inputListener = new();
-    private NetworkPredictionBuffer<PlayerInputMessage, PlayerSnapshot> _networkPredictionBuffer = new(8);
+    private NetworkPredictionBuffer<PlayerInputMessage, PlayerSnapshot> _networkPredictionBuffer = new(NET_PRED_BUFFER_SIZE);
+    private NetworkInterpolationBuffer<GameStateUpdate> _networkInterpolationBuffer = new(NET_PRED_BUFFER_SIZE / 2);
 
     [Header("Input")]
     private InputManager _inputManager;
@@ -70,7 +73,7 @@ public class LocalPlayerController : MonoBehaviour
         }
         else
         {
-            
+            TryInterpolate();
         }
     }
     #endregion
@@ -142,33 +145,33 @@ public class LocalPlayerController : MonoBehaviour
     #region Server Message
     private void HandleNetworkMessage(ServerMessage message)
     {
-        
+
         switch (message.MessageType)
         {
             case NetworkMessageTypes.Server.GameState.StateUpdate:
-                GameStateUpdate gameStateUpdate = (GameStateUpdate)message;
-                foreach (PlayerState playerState in gameStateUpdate.PlayerStates)
+                GameStatesUpdate gameStatesUpdate = (GameStatesUpdate)message;
+                if (Identity.IsLocalPlayer)
+                {
+                    GameStateUpdate gameStateUpdate = gameStatesUpdate.GameStates[FindServerLastProcessedInputIndex(gameStatesUpdate)];
+                    foreach (PlayerState playerState in gameStateUpdate.PlayerStates)
                     if (playerState.PlayerId == Identity.ClientId)
-                        HandlePlayerMove(playerState, gameStateUpdate.ProcessedInputSequence);
+                    {
+                        TryReconcileServer(playerState, gameStateUpdate.ProcessedInputSequence);
+                        break;
+                    }
+
+                }
+                else
+                {
+                    StoreForInterpolate(gameStatesUpdate);
+                }
                 break;
+                    
         }
     }
 
-    private void HandlePlayerMove(PlayerState state, int processedInputSequence)
-    {
-        if (Identity.IsLocalPlayer)
-        {
-            TryReconcileServer(state, processedInputSequence);
-        }
-        else
-        {
-
-        }
-
-    }
     private void TryReconcileServer(PlayerState state, int processedInputSequence)
     {
-
         PlayerSnapshot[] stateSnapshots = (PlayerSnapshot[])_networkPredictionBuffer.StateBufferAsArray.Clone();
         IInputSnapshot[] inputSnapshots = (IInputSnapshot[])_networkPredictionBuffer.InputBufferAsArray.Clone();
 
@@ -220,6 +223,33 @@ public class LocalPlayerController : MonoBehaviour
 
         _isReconciling = false;
     }
+    private void StoreForInterpolate(GameStatesUpdate gameStatesUpdate)
+    {
+        if (_serverSequence == -1)
+        {
+            _serverSequence = FindServerFirstStateIndex(gameStatesUpdate);
+        }
+
+        for (int i = 0; i < gameStatesUpdate.GameStates.Length; i++)
+        {
+            _networkInterpolationBuffer.Add(gameStatesUpdate.GameStates[i]);
+        }
+    }
+    private void TryInterpolate()
+    {
+        if (_networkInterpolationBuffer.Poll(_serverSequence, out GameStateUpdate result))
+        {
+            for (int i = 0; i < result.PlayerStates.Length; i++)
+            {
+                if (result.PlayerStates[i].PlayerId == Identity.ClientId)
+                {
+                    transform.position = new(result.PlayerStates[i].PositionX, result.PlayerStates[i].PositionY);
+                    break;
+                }
+            }
+            _serverSequence += 1;
+        }
+    }
     #endregion
 
     #region Utilities
@@ -245,6 +275,35 @@ public class LocalPlayerController : MonoBehaviour
 
         return -1;
 
+    }
+    private int FindServerLastProcessedInputIndex(GameStatesUpdate gameStatesUpdate)
+    {
+        int index = 0;
+        int lastProcessedInputIndex = int.MinValue;
+        for (int i = 0; i < gameStatesUpdate.GameStates.Length; i++)
+        {
+            if (gameStatesUpdate.GameStates[i].ProcessedInputSequence > lastProcessedInputIndex)
+            {
+                lastProcessedInputIndex = gameStatesUpdate.GameStates[i].ProcessedInputSequence;
+                index = i;
+            }
+        }
+        return index;
+    }
+    private int FindServerFirstStateIndex(GameStatesUpdate gameStatesUpdate)
+    {
+        int index = 0;
+        int firstStateIndex = int.MaxValue;
+        for (int i = 0; i < gameStatesUpdate.GameStates.Length; i++)
+        {
+            if (gameStatesUpdate.GameStates[i].ProcessedInputSequence < firstStateIndex)
+            {
+                firstStateIndex = gameStatesUpdate.GameStates[i].ProcessedInputSequence;
+                index = i;
+            }
+        }
+
+        return index;
     }
     #endregion
 }

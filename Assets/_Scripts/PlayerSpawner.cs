@@ -5,7 +5,7 @@ public class PlayerSpawner : MonoBehaviour
 {
     [Header("Prefabs")]
     [SerializeField] private GameObject _localPlayerPrefab;
-    [SerializeField] private GameObject _remotePlayerPrefab;
+    // [SerializeField] private GameObject _remotePlayerPrefab;
 
     [SerializeField] private InputActionAsset _inputActionAsset;
     private void OnEnable()
@@ -31,7 +31,7 @@ public class PlayerSpawner : MonoBehaviour
 
         GameObject playerObj = Instantiate(prefab, position, Quaternion.identity);
 
-        if (!playerObj.TryGetComponent<LocalPlayerController>(out var localPlayerController))
+        if (!playerObj.TryGetComponent<PlayerController>(out var localPlayerController))
         {
             Debug.LogError("Wrong player object");
             Destroy(playerObj);
@@ -75,9 +75,9 @@ public class PlayerSpawner : MonoBehaviour
     private void HandlePlayerSpawn(PlayerSpawnMessage message)
     {
         TrySpawnPlayer(
-            message.ReceiverId,
+            message.PlayerId,
             new Vector2(message.PositionX, message.PositionY),
-            message.ReceiverId == NetworkManager.Instance.ClientId
+            message.PlayerId == NetworkManager.Instance.ClientId
         );
     }
 }
