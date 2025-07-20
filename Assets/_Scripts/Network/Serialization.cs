@@ -28,6 +28,14 @@ public static class Serialization
             // 1. Wrap and encode JSON
             string payloadJson = JsonConvert.SerializeObject(message);
             string wrappedJson = "{\"payload\":" + payloadJson + "}";
+            if (message.MessageType == NetworkMessageTypes.Client.Ingame.Input)
+            {
+                BatchPlayerInputMessage mess = (BatchPlayerInputMessage)message;
+                if (mess.PlayerInputMessages.Length != 0)
+                {
+                    Debug.Log(payloadJson);
+                }
+            }
             byte[] payloadBytes = Encoding.UTF8.GetBytes(wrappedJson);
 
             // 2. Calculate message length (excluding the 2-byte length field itself)

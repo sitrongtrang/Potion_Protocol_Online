@@ -40,6 +40,7 @@ public abstract class ServerMessage : NetworkMessage
 
 public class BatchPlayerInputMessage : ClientMessage
 {
+    [JsonProperty("playerInputs")]
     public PlayerInputMessage[] PlayerInputMessages;
     public BatchPlayerInputMessage() : base(NetworkMessageTypes.Client.Ingame.Input) { }
 }

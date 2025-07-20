@@ -4,12 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkIdentity))]
 public class LocalPlayerController : MonoBehaviour
 {
-    [Header("Constants")]
-    private const float CLIENT_SEND_INTERVAL = 1 / 30f;
-    private const float SIM_TICK_INTERVAL = 1f / 60f;
-
     [Header("Components")]
-    private float _simTimer = 0f;
     private float _sendTimer = 0f;
     public NetworkIdentity Identity { get; private set; }
 
@@ -54,9 +49,9 @@ public class LocalPlayerController : MonoBehaviour
         }
 
         _sendTimer += Time.deltaTime;
-        while (_sendTimer >= CLIENT_SEND_INTERVAL)
+        while (_sendTimer >= NetworkManager.NET_TICK_INTERVAL)
         {
-            _sendTimer -= CLIENT_SEND_INTERVAL;
+            _sendTimer -= NetworkManager.NET_TICK_INTERVAL;
 
             if (Identity.IsLocalPlayer)
             {
@@ -70,20 +65,13 @@ public class LocalPlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        _simTimer += Time.fixedDeltaTime;
-
-        while (_simTimer >= SIM_TICK_INTERVAL)
+        if (Identity.IsLocalPlayer)
         {
-            _simTimer -= SIM_TICK_INTERVAL;
-
-            if (Identity.IsLocalPlayer)
-            {
-                Simulate(_inputListener);
-            }
-            else
-            {
-                
-            }
+            Simulate(_inputListener);
+        }
+        else
+        {
+            
         }
     }
     #endregion
@@ -132,7 +120,7 @@ public class LocalPlayerController : MonoBehaviour
     {
         int inputSequence = _networkPredictionBuffer.GetCurrentInputSequence();
 
-        transform.position = transform.position + (Vector3)(5 * SIM_TICK_INTERVAL * inputSnapshot.MoveDir);
+        transform.position = transform.position + (Vector3)(5 * Time.fixedDeltaTime * inputSnapshot.MoveDir);
 
         PlayerInputMessage inputMesasage = new(inputSnapshot)
         {
@@ -222,7 +210,7 @@ public class LocalPlayerController : MonoBehaviour
         for (int i = fromIndex; i < inputSnapshots.Length; i++)
         {
             Vector2 moveDir = ((PlayerInputSnapshot)inputSnapshots[i]).MoveDir;
-            transform.position = transform.position + (Vector3)(5f * SIM_TICK_INTERVAL * moveDir);
+            transform.position = transform.position + (Vector3)(5f * Time.fixedDeltaTime * moveDir);
 
             _networkPredictionBuffer.EnqueueState(new PlayerSnapshot
             {
