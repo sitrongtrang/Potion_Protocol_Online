@@ -11,7 +11,7 @@ public class LocalPlayerController : MonoBehaviour
     [Header("Syncing")]
     private bool _isReconciling = false;
     private PlayerInputSnapshot _inputListener = new();
-    private NetworkPredictionBuffer<PlayerInputMessage, PlayerSnapshot> _networkPredictionBuffer = new(12);
+    private NetworkPredictionBuffer<PlayerInputMessage, PlayerSnapshot> _networkPredictionBuffer = new(8);
 
     [Header("Input")]
     private InputManager _inputManager;
@@ -35,7 +35,9 @@ public class LocalPlayerController : MonoBehaviour
     }
     void Update()
     {
-        if (_inputManager != null && Identity.IsLocalPlayer)
+        if (!Identity.IsLocalPlayer) return;
+
+        if (_inputManager != null)
         {
             _inputListener.MoveDir = _inputManager.controls.Player.Move.ReadValue<Vector2>().normalized;
 
@@ -53,13 +55,10 @@ public class LocalPlayerController : MonoBehaviour
         {
             _sendTimer -= NetworkManager.NET_TICK_INTERVAL;
 
-            if (Identity.IsLocalPlayer)
+            NetworkManager.Instance.SendMessage(new BatchPlayerInputMessage
             {
-                NetworkManager.Instance.SendMessage(new BatchPlayerInputMessage
-                {
-                    PlayerInputMessages = _networkPredictionBuffer.InputBufferAsArray
-                });
-            }
+                PlayerInputMessages = _networkPredictionBuffer.InputBufferAsArray
+            });
         }
     }
 
