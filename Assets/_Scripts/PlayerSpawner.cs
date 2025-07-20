@@ -34,6 +34,8 @@ public class PlayerSpawner : MonoBehaviour
         if (!playerObj.TryGetComponent<LocalPlayerController>(out var localPlayerController))
         {
             Debug.LogError("Wrong player object");
+            Destroy(playerObj);
+            return;
         }
 
         InputManager inputManager = new InputManager(_inputActionAsset);

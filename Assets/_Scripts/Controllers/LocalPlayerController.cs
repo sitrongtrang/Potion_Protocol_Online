@@ -18,8 +18,7 @@ public class LocalPlayerController : MonoBehaviour
     private PlayerInputSnapshot _inputListener = new();
     private NetworkPredictionBuffer<PlayerInputMessage, PlayerSnapshot> _networkPredictionBuffer = new(12);
 
-    [Header("Movement")]
-    private Vector2 _moveDir;
+    [Header("Input")]
     private InputManager _inputManager;
 
     [Header("Game Components")]
@@ -35,7 +34,7 @@ public class LocalPlayerController : MonoBehaviour
     {
         NetworkEvents.OnMessageReceived -= HandleNetworkMessage;
     }
-    void Start()
+    void Awake()
     {
         Identity = GetComponent<NetworkIdentity>();
     }
@@ -61,11 +60,10 @@ public class LocalPlayerController : MonoBehaviour
 
             if (Identity.IsLocalPlayer)
             {
-
-            }
-            else
-            {
-
+                NetworkManager.Instance.SendMessage(new BatchPlayerInputMessage
+                {
+                    PlayerInputMessages = _networkPredictionBuffer.InputBufferAsArray
+                });
             }
         }
     }
@@ -84,7 +82,7 @@ public class LocalPlayerController : MonoBehaviour
             }
             else
             {
-
+                
             }
         }
     }
