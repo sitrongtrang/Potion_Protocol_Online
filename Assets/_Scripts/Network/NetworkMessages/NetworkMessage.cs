@@ -1,7 +1,5 @@
 using System;
 using Newtonsoft.Json;
-using Unity.Android.Gradle.Manifest;
-using UnityEngine;
 
 [Serializable]
 public abstract class NetworkMessage
@@ -14,12 +12,14 @@ public abstract class NetworkMessage
     }
 }
 
+[Serializable]
 public abstract class ClientMessage : NetworkMessage
 {
     [JsonProperty("clientId")]
     public string SenderId;
     [JsonProperty("clientSendTime")]
     public long ClientSendTime;
+    [JsonProperty("clientEstimatedServerTime")]
     public long ClientEstimatedServerTime;
     protected ClientMessage(short messageType) : base(messageType)
     {
@@ -29,6 +29,7 @@ public abstract class ClientMessage : NetworkMessage
     }
 }
 
+[Serializable]
 public abstract class ServerMessage : NetworkMessage
 {
     [JsonProperty("clientId")]
@@ -38,8 +39,10 @@ public abstract class ServerMessage : NetworkMessage
     protected ServerMessage(short messageType) : base(messageType) { }
 }
 
+[Serializable]
 public class BatchPlayerInputMessage : ClientMessage
 {
+    [JsonProperty("playerInputs")]
     public PlayerInputMessage[] PlayerInputMessages;
     public BatchPlayerInputMessage() : base(NetworkMessageTypes.Client.Ingame.Input) { }
 }
