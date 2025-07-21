@@ -5,7 +5,6 @@ public class PlayerSpawner : MonoBehaviour
 {
     [Header("Prefabs")]
     [SerializeField] private GameObject _localPlayerPrefab;
-    // [SerializeField] private GameObject _remotePlayerPrefab;
 
     [SerializeField] private InputActionAsset _inputActionAsset;
     private void OnEnable()
