@@ -13,7 +13,7 @@ public static class Serialization
     public static readonly JsonSerializerSettings Settings = new()
     {
         ContractResolver = new JsonPropertyOnlyContractResolver(),
-        // Formatting = Formatting.Indented
+        // MissingMemberHandling = MissingMemberHandling.Ignore
     };
 
     #region Core
@@ -73,6 +73,7 @@ public static class Serialization
             string json = Encoding.UTF8.GetString(payloadBytes);
 
             // Debug.Log($"[Deserialize] type={messageType}, id={messageId}, status={statusCode}, json={json}");
+            ServerMessage a = CreateMessageFromType(messageType, json);
             return CreateMessageFromType(messageType, json);
         }
         catch (Exception e)

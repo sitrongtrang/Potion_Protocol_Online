@@ -2,10 +2,17 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
+// public class GameStateWrapper : ServerMessage
+// {
+//     [JsonProperty("gameStates")]
+//     public GameStatesUpdate gameStatesUpdate;
+//     public GameStateWrapper() : base(NetworkMessageTypes.Server.GameState.StateUpdate) { }
+// }
+
 public class GameStatesUpdate : ServerMessage
 {
-    [JsonProperty("gameStates")]
-    public GameStateUpdate[] GameStates;
+    [JsonProperty("gameStatesSnapshot")]
+    public List<GameStateUpdate> GameStates;
     public GameStatesUpdate() : base(NetworkMessageTypes.Server.GameState.StateUpdate) { }
 
 }

@@ -149,22 +149,23 @@ public class PlayerController : MonoBehaviour
         switch (message.MessageType)
         {
             case NetworkMessageTypes.Server.GameState.StateUpdate:
+                // GameStateWrapper wrapper = (GameStateWrapper)message;
                 GameStatesUpdate gameStatesUpdate = (GameStatesUpdate)message;
-                if (Identity.IsLocalPlayer)
-                {
-                    GameStateUpdate gameStateUpdate = gameStatesUpdate.GameStates[FindServerLastProcessedInputIndex(gameStatesUpdate)];
-                    foreach (PlayerState playerState in gameStateUpdate.PlayerStates)
-                    if (playerState.PlayerId == Identity.ClientId)
-                    {
-                        TryReconcileServer(playerState, gameStateUpdate.ProcessedInputSequence);
-                        break;
-                    }
+                // if (Identity.IsLocalPlayer)
+                // {
+                //     GameStateUpdate gameStateUpdate = gameStatesUpdate.GameStates[FindServerLastProcessedInputIndex(gameStatesUpdate)];
+                //     foreach (PlayerState playerState in gameStateUpdate.PlayerStates)
+                //     if (playerState.PlayerId == Identity.ClientId)
+                //     {
+                //         TryReconcileServer(playerState, gameStateUpdate.ProcessedInputSequence);
+                //         break;
+                //     }
 
-                }
-                else
-                {
-                    StoreForInterpolate(gameStatesUpdate);
-                }
+                // }
+                // else
+                // {
+                //     StoreForInterpolate(gameStatesUpdate);
+                // }
                 break;
                     
         }
@@ -231,7 +232,7 @@ public class PlayerController : MonoBehaviour
             if (firstServerStateIndex != -1) _serverSequence = firstServerStateIndex;
         }
 
-        for (int i = 0; i < gameStatesUpdate.GameStates.Length; i++)
+        for (int i = 0; i < gameStatesUpdate.GameStates.Count; i++)
         {
             _networkInterpolationBuffer.Add(gameStatesUpdate.GameStates[i]);
         }
@@ -281,7 +282,7 @@ public class PlayerController : MonoBehaviour
     {
         int index = 0;
         int lastProcessedInputIndex = int.MinValue;
-        for (int i = 0; i < gameStatesUpdate.GameStates.Length; i++)
+        for (int i = 0; i < gameStatesUpdate.GameStates.Count; i++)
         {
             if (gameStatesUpdate.GameStates[i].ProcessedInputSequence > lastProcessedInputIndex)
             {
@@ -295,7 +296,7 @@ public class PlayerController : MonoBehaviour
     {
         int index = 0;
         int firstStateIndex = int.MaxValue;
-        for (int i = 0; i < gameStatesUpdate.GameStates.Length; i++)
+        for (int i = 0; i < gameStatesUpdate.GameStates.Count; i++)
         {
             if (gameStatesUpdate.GameStates[i].ProcessedInputSequence < firstStateIndex)
             {
