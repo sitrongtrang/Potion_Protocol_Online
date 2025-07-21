@@ -99,19 +99,19 @@ public class PlayerController : MonoBehaviour
 
         PlayerInputSnapshot cpy = new(inputSnapshot);
 
-        // if (playerInputSnapshot.PickupPressed && TryPickup())
+        // if (cpy.PickupPressed && TryPickup())
         //     return;
 
-        // if (playerInputSnapshot.DropPressed && TryDrop())
+        // if (cpy.DropPressed && TryDrop())
         //     return;
 
-        // if (playerInputSnapshot.CombinePressed && TryCraft())
+        // if (cpy.CombinePressed && TryCraft())
         //     return;
 
-        // if (playerInputSnapshot.TransferPressed && TryTransfer())
+        // if (cpy.TransferPressed && TryTransfer())
         //     return;
 
-        // if (playerInputSnapshot.SubmitPressed && TrySubmit())
+        // if (cpy.SubmitPressed && TrySubmit())
         //     return;
 
         if (cpy.MoveDir != Vector2.zero && TryMove(cpy))
@@ -173,7 +173,7 @@ public class PlayerController : MonoBehaviour
     private void TryReconcileServer(PlayerState state, int processedInputSequence)
     {
         PlayerSnapshot[] stateSnapshots = (PlayerSnapshot[])_networkPredictionBuffer.StateBufferAsArray.Clone();
-        IInputSnapshot[] inputSnapshots = (IInputSnapshot[])_networkPredictionBuffer.InputBufferAsArray.Clone();
+        PlayerInputMessage[] inputSnapshots = (PlayerInputMessage[])_networkPredictionBuffer.InputBufferAsArray.Clone();
 
         bool needReconcile = false;
         int index;
@@ -197,7 +197,7 @@ public class PlayerController : MonoBehaviour
 
         ReconcileServer(state, processedInputSequence, inputSnapshots, index + 1);
     }
-    private void ReconcileServer(PlayerState message, int processedInputSequence, IInputSnapshot[] inputSnapshots, int fromIndex)
+    private void ReconcileServer(PlayerState state, int processedInputSequence, PlayerInputMessage[] inputSnapshots, int fromIndex)
     {
         _isReconciling = true;
         _networkPredictionBuffer.ClearStateBuffer();
@@ -205,13 +205,13 @@ public class PlayerController : MonoBehaviour
         _networkPredictionBuffer.EnqueueState(new PlayerSnapshot
         {
             ProcessedInputSequence = processedInputSequence,
-            Position = new(message.PositionX, message.PositionY)
+            Position = new(state.PositionX, state.PositionY)
         });
 
-        transform.position = new Vector2(message.PositionX, message.PositionY);
+        transform.position = new Vector2(state.PositionX, state.PositionY);
         for (int i = fromIndex; i < inputSnapshots.Length; i++)
         {
-            Vector2 moveDir = ((PlayerInputSnapshot)inputSnapshots[i]).MoveDir;
+            Vector2 moveDir = new(inputSnapshots[i].MoveDirX, inputSnapshots[i].MoveDirY);
             transform.position = transform.position + (Vector3)(5f * Time.fixedDeltaTime * moveDir);
 
             _networkPredictionBuffer.EnqueueState(new PlayerSnapshot
@@ -254,7 +254,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Utilities
-    int FindFromIndex(IInputSnapshot[] inputSnapshots, int index, int targetSequence)
+    int FindFromIndex(PlayerInputMessage[] inputSnapshots, int index, int targetSequence)
     {
         int length = inputSnapshots.Length;
 
