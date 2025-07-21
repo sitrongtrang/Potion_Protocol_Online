@@ -107,7 +107,7 @@ public static class Serialization
             NetworkMessageTypes.Server.Player.Connected => JsonConvert.DeserializeObject<PlayerConnectedMessage>(json, Settings),
             NetworkMessageTypes.Server.Player.Disconnected => JsonConvert.DeserializeObject<PlayerDisconnectedMessage>(json, Settings),
 
-            NetworkMessageTypes.Server.GameState.StateUpdate => JsonConvert.DeserializeObject<GameStateUpdate>(json, Settings),
+            NetworkMessageTypes.Server.GameState.StateUpdate => gameStatesUpdate(json),
             NetworkMessageTypes.Server.GameState.ScoreUpdate => JsonConvert.DeserializeObject<GameScoreUpdateMessage>(json, Settings),
             NetworkMessageTypes.Server.GameState.TimeUpdate => JsonConvert.DeserializeObject<GameTimeUpdateMessage>(json, Settings),
 
