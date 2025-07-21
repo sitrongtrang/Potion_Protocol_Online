@@ -1,7 +1,11 @@
+using Newtonsoft.Json;
+
 public class PlayerState
 {
+    [JsonProperty("playerId")]
     public string PlayerId;
-    public int ProcessedInputSequence;
+    [JsonProperty("positionX")]
     public float PositionX;
+    [JsonProperty("positionY")]
     public float PositionY;
 }

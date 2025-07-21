@@ -13,7 +13,7 @@ public static class Serialization
     public static readonly JsonSerializerSettings Settings = new()
     {
         ContractResolver = new JsonPropertyOnlyContractResolver(),
-        // Formatting = Formatting.Indented
+        // MissingMemberHandling = MissingMemberHandling.Ignore
     };
 
     #region Core
@@ -107,7 +107,7 @@ public static class Serialization
             NetworkMessageTypes.Server.Player.Connected => JsonConvert.DeserializeObject<PlayerConnectedMessage>(json, Settings),
             NetworkMessageTypes.Server.Player.Disconnected => JsonConvert.DeserializeObject<PlayerDisconnectedMessage>(json, Settings),
 
-            NetworkMessageTypes.Server.GameState.StateUpdate => JsonConvert.DeserializeObject<GameStateUpdate>(json, Settings),
+            NetworkMessageTypes.Server.GameState.StateUpdate => gameStatesUpdate(json),
             NetworkMessageTypes.Server.GameState.ScoreUpdate => JsonConvert.DeserializeObject<GameScoreUpdateMessage>(json, Settings),
             NetworkMessageTypes.Server.GameState.TimeUpdate => JsonConvert.DeserializeObject<GameTimeUpdateMessage>(json, Settings),
 
@@ -116,6 +116,12 @@ public static class Serialization
         };
     }
     #endregion
+
+    public static GameStatesUpdate gameStatesUpdate(string json)
+    {
+        var outerWrapper = JsonConvert.DeserializeObject<OuterGameStatesWrapper>(json, Settings);
+        return JsonConvert.DeserializeObject<GameStatesUpdate>(outerWrapper.GameStatesJson, Settings);
+    }
 
     #region Utilities
     private static void WriteInt16BigEndian(BinaryWriter writer, short value)

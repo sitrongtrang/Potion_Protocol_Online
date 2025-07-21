@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 [Serializable]
 public class AuthSuccessMessage : ServerMessage
 {
+    [JsonProperty("clientId")]
+    public string ClientId;
     [JsonProperty("response")]
     public string Response;
     [JsonProperty("reconnectToken")]

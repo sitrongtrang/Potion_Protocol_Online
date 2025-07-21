@@ -7,6 +7,11 @@ public class NetworkManager : MonoBehaviour
 {
     // Singleton instance
     public static NetworkManager Instance { get; private set; }
+    [Header("Constants")]
+    public const float NET_TICK_MS = 33.3f;
+    public const float SIM_TICK_MS = 16f;
+    public const float NET_TICK_INTERVAL = NET_TICK_MS / 1000f;
+    public const float SIM_TICK_INTERVAL = SIM_TICK_MS / 1000f;
 
     [Header("Connection Settings")]
     [SerializeField] private string _ip = "127.0.0.1";
@@ -41,6 +46,8 @@ public class NetworkManager : MonoBehaviour
         }
 
         UnityMainThreadDispatcher.Initialize();
+
+        Time.fixedDeltaTime = SIM_TICK_INTERVAL;
     }
 
     private void Initialize()
@@ -253,7 +260,7 @@ public class NetworkManager : MonoBehaviour
     {
         _isAuthenticated = true;
         _sessionToken = message.ReconnectToken;
-        // _clientId = message.ReceiverId;
+        _clientId = message.ClientId;
         // PlayerPrefs.SetString("SessionToken", _sessionToken);
 
         Debug.Log("Authentication successful");

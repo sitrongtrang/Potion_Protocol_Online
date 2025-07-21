@@ -32,8 +32,6 @@ public abstract class ClientMessage : NetworkMessage
 [Serializable]
 public abstract class ServerMessage : NetworkMessage
 {
-    [JsonProperty("clientId")]
-    public string ReceiverId;
     [JsonProperty("serverSendTime")]
     public long ServerSendTime;
     protected ServerMessage(short messageType) : base(messageType) { }

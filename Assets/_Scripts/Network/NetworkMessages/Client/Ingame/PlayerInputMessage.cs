@@ -27,24 +27,22 @@ public class PlayerInputMessage : ClientMessage, IInputSnapshot
     [JsonProperty("inputFlags")]
     public int Flags;
     public int SelectedSlot;
+    public PlayerInputMessage(PlayerInputSnapshot playerInputSnapshot) : base(NetworkMessageTypes.Client.Ingame.Input)
+    {
+        MoveDirX = playerInputSnapshot.MoveDir.x;
+        MoveDirY = playerInputSnapshot.MoveDir.y;
 
-    public PlayerInputMessage() : base(NetworkMessageTypes.Client.Ingame.Input) { }
-    // public PlayerInputMessage(PlayerInputSnapshot playerInputSnapshot) : base(NetworkMessageTypes.Client.Ingame.Input)
-    // {
-    //     MoveDirX = playerInputSnapshot.MoveDir.x;
-    //     MoveDirY = playerInputSnapshot.MoveDir.y;
+        Flags = playerInputSnapshot.DashPressed ? Flags |= (int)InputFlags.Dash : Flags ;
 
-    //     Flags = playerInputSnapshot.DashPressed ? Flags |= (int)InputFlags.Dash : Flags ;
+        Flags = playerInputSnapshot.AttackPressed ? Flags |= (int)InputFlags.Attack : Flags ;
 
-    //     Flags = playerInputSnapshot.AttackPressed ? Flags |= (int)InputFlags.Attack : Flags ;
+        Flags = playerInputSnapshot.PickupPressed ? Flags |= (int)InputFlags.Pickup : Flags ;
+        Flags = playerInputSnapshot.DropPressed ? Flags |= (int)InputFlags.Drop : Flags ;
+        Flags = playerInputSnapshot.TransferPressed ? Flags |= (int)InputFlags.Transfer : Flags ;
+        Flags = playerInputSnapshot.CombinePressed ? Flags |= (int)InputFlags.Craft : Flags ;
+        Flags = playerInputSnapshot.SubmitPressed ? Flags |= (int)InputFlags.Submit : Flags ;
 
-    //     Flags = playerInputSnapshot.PickupPressed ? Flags |= (int)InputFlags.Pickup : Flags ;
-    //     Flags = playerInputSnapshot.DropPressed ? Flags |= (int)InputFlags.Drop : Flags ;
-    //     Flags = playerInputSnapshot.TransferPressed ? Flags |= (int)InputFlags.Transfer : Flags ;
-    //     Flags = playerInputSnapshot.CombinePressed ? Flags |= (int)InputFlags.Craft : Flags ;
-    //     Flags = playerInputSnapshot.SubmitPressed ? Flags |= (int)InputFlags.Submit : Flags ;
-
-    // }
+    }
 
     int IInputSnapshot.InputSequence => InputSequence;
 }

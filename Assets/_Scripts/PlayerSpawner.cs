@@ -5,7 +5,6 @@ public class PlayerSpawner : MonoBehaviour
 {
     [Header("Prefabs")]
     [SerializeField] private GameObject _localPlayerPrefab;
-    [SerializeField] private GameObject _remotePlayerPrefab;
 
     [SerializeField] private InputActionAsset _inputActionAsset;
     private void OnEnable()
@@ -31,20 +30,15 @@ public class PlayerSpawner : MonoBehaviour
 
         GameObject playerObj = Instantiate(prefab, position, Quaternion.identity);
 
-        if (!playerObj.TryGetComponent<NetworkIdentity>(out var identity))
+        if (!playerObj.TryGetComponent<PlayerController>(out var localPlayerController))
         {
-            Debug.LogError("Spawned player missing NetworkIdentity component");
+            Debug.LogError("Wrong player object");
             Destroy(playerObj);
             return;
         }
 
-        if (playerObj.TryGetComponent<LocalPlayerController>(out var localPlayerController))
-        {
-            InputManager inputManager = new InputManager(_inputActionAsset);
-            localPlayerController.Initialize(inputManager);
-        }
-
-        identity.Initialize(networkId, isLocal);
+        InputManager inputManager = new InputManager(_inputActionAsset);
+        localPlayerController.Initialize(inputManager, networkId, isLocal);
 
         // Additional setup
         if (isLocal)
@@ -80,9 +74,9 @@ public class PlayerSpawner : MonoBehaviour
     private void HandlePlayerSpawn(PlayerSpawnMessage message)
     {
         TrySpawnPlayer(
-            message.ReceiverId,
+            message.PlayerId,
             new Vector2(message.PositionX, message.PositionY),
-            message.ReceiverId == NetworkManager.Instance.ClientId
+            message.PlayerId == NetworkManager.Instance.ClientId
         );
     }
 }

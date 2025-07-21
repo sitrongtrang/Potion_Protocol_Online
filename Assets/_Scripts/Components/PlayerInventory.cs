@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerInventory
 {
-    [SerializeField] private LocalPlayerController _player;
+    [SerializeField] private PlayerController _player;
     private InputManager _inputManager;
     private InputAction[] _inputAction;
     private ItemConfig[] items = new ItemConfig[GameConstants.MaxSlot];
@@ -23,7 +23,7 @@ public class PlayerInventory
     public event Action OnSlotChanged;
     private bool _isAutoFocus = true; // Auto focus mode, if true, will choose the current slot when adding item
 
-    public void Initialize(LocalPlayerController player, InputManager inputManager)
+    public void Initialize(PlayerController player, InputManager inputManager)
     {
         _player = player;
         _inputManager = inputManager;
