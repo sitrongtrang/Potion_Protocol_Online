@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private const int NET_PRED_BUFFER_SIZE = 8;
+    private const int NET_INTERPOLATION_BUFFER_SIZE = 5;
     [Header("Components")]
     private float _sendTimer = 0f;
     public NetworkIdentity Identity { get; private set; }
@@ -14,7 +15,7 @@ public class PlayerController : MonoBehaviour
     private bool _isReconciling = false;
     private PlayerInputSnapshot _inputListener = new();
     private NetworkPredictionBuffer<PlayerInputMessage, PlayerSnapshot> _networkPredictionBuffer = new(NET_PRED_BUFFER_SIZE);
-    private NetworkInterpolationBuffer<PlayerStateInterpolateData> _networkInterpolationBuffer = new(NET_PRED_BUFFER_SIZE * 2);
+    private NetworkInterpolationBuffer<PlayerStateInterpolateData> _networkInterpolationBuffer = new(NET_INTERPOLATION_BUFFER_SIZE);
 
     [Header("Input")]
     private InputManager _inputManager;
@@ -34,7 +35,7 @@ public class PlayerController : MonoBehaviour
     }
     void Awake()
     {
-        Application.runInBackground = true;
+        // Application.runInBackground = true;
         Identity = GetComponent<NetworkIdentity>();
     }
     void Update()
@@ -248,6 +249,13 @@ public class PlayerController : MonoBehaviour
                         {
                             break;
                         }
+                        else
+                        {
+                            if (currGameState.ServerSequence - _serverSequence > NET_INTERPOLATION_BUFFER_SIZE)
+                            {
+                                _serverSequence = currGameState.ServerSequence;
+                            }
+                        }
                     }
                     _networkInterpolationBuffer.Add(new PlayerStateInterpolateData()
                     {
@@ -262,8 +270,6 @@ public class PlayerController : MonoBehaviour
     }
     private void TryInterpolate()
     {
-        Debug.Log("Mine: " + _serverSequence);
-        Debug.Log("Yours: " + _networkInterpolationBuffer.Peek().ServerSequence);
         if (_networkInterpolationBuffer.Poll(_serverSequence, out PlayerStateInterpolateData result))
         {
             transform.position = new(result.PositionX, result.PositionY);
@@ -309,29 +315,6 @@ public class PlayerController : MonoBehaviour
             }
         }
         return index;
-    }
-    private int FindServerFirstState(GameStatesUpdate gameStatesUpdate)
-    {
-
-        int firstState = int.MaxValue;
-        for (int i = 0; i < gameStatesUpdate.GameStates.Count; i++)
-        {
-            GameStateUpdate curretGameState = gameStatesUpdate.GameStates[i];
-            for (int j = 0; j < curretGameState.PlayerStates.Length; j++)
-            {
-                if (curretGameState.PlayerStates[j].PlayerId == Identity.ClientId)
-                {
-                    if (curretGameState.ServerSequence < firstState)
-                    {
-                        firstState = curretGameState.ServerSequence;
-                    }
-                    break;
-                }
-            }
-                
-        }
-
-        return firstState;
     }
     #endregion
 }
