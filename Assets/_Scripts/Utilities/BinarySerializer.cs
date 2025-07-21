@@ -70,6 +70,16 @@ public static class BinarySerializer
         {
             writer.Write((byte)((bool)value ? 1 : 0));
         }
+        else if (type == typeof(string))
+        {
+            string str = (string)value;
+            writer.Write((short)(str?.Length ?? 0));
+            if (str != null)
+            {
+                foreach (char c in str)
+                    writer.Write(c);
+            }
+        }
         else if (type.IsArray)
         {
             Array array = (Array)value;
@@ -101,6 +111,15 @@ public static class BinarySerializer
             return ReadFloat32BigEndian(reader);
         if (type == typeof(bool))
             return reader.ReadByte() != 0;
+
+        if (type == typeof(string))
+        {
+            short length = ReadInt16BigEndian(reader);
+            char[] chars = new char[length];
+            for (int i = 0; i < length; i++)
+                chars[i] = reader.ReadChar();
+            return new string(chars);
+        }
 
         if (type.IsArray)
         {
