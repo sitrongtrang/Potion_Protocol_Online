@@ -73,7 +73,6 @@ public static class Serialization
             string json = Encoding.UTF8.GetString(payloadBytes);
 
             // Debug.Log($"[Deserialize] type={messageType}, id={messageId}, status={statusCode}, json={json}");
-            ServerMessage a = CreateMessageFromType(messageType, json);
             return CreateMessageFromType(messageType, json);
         }
         catch (Exception e)
@@ -120,7 +119,7 @@ public static class Serialization
             NetworkMessageTypes.Server.Resource.Spawn => JsonConvert.DeserializeObject<ResourceSpawnMessage>(json, Settings),
             NetworkMessageTypes.Server.Resource.Harvested => JsonConvert.DeserializeObject<ResourceHarvestedMessage>(json, Settings),
 
-            NetworkMessageTypes.Server.GameState.StateUpdate => JsonConvert.DeserializeObject<GameStatesUpdate>(json, Settings),
+            NetworkMessageTypes.Server.GameState.StateUpdate => gameStatesUpdate(json),
             NetworkMessageTypes.Server.GameState.ScoreUpdate => JsonConvert.DeserializeObject<GameScoreUpdateMessage>(json, Settings),
             NetworkMessageTypes.Server.GameState.TimeUpdate => JsonConvert.DeserializeObject<GameTimeUpdateMessage>(json, Settings),
 
@@ -129,6 +128,12 @@ public static class Serialization
         };
     }
     #endregion
+
+    public static GameStatesUpdate gameStatesUpdate(string json)
+    {
+        var outerWrapper = JsonConvert.DeserializeObject<OuterGameStatesWrapper>(json, Settings);
+        return JsonConvert.DeserializeObject<GameStatesUpdate>(outerWrapper.GameStatesJson, Settings);
+    }
 
     #region Utilities
     private static void WriteInt16BigEndian(BinaryWriter writer, short value)

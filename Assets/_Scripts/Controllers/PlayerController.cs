@@ -149,23 +149,22 @@ public class PlayerController : MonoBehaviour
         switch (message.MessageType)
         {
             case NetworkMessageTypes.Server.GameState.StateUpdate:
-                // GameStateWrapper wrapper = (GameStateWrapper)message;
                 GameStatesUpdate gameStatesUpdate = (GameStatesUpdate)message;
-                // if (Identity.IsLocalPlayer)
-                // {
-                //     GameStateUpdate gameStateUpdate = gameStatesUpdate.GameStates[FindServerLastProcessedInputIndex(gameStatesUpdate)];
-                //     foreach (PlayerState playerState in gameStateUpdate.PlayerStates)
-                //     if (playerState.PlayerId == Identity.ClientId)
-                //     {
-                //         TryReconcileServer(playerState, gameStateUpdate.ProcessedInputSequence);
-                //         break;
-                //     }
+                if (Identity.IsLocalPlayer)
+                {
+                    GameStateUpdate gameStateUpdate = gameStatesUpdate.GameStates[FindServerLastProcessedInputIndex(gameStatesUpdate)];
+                    foreach (PlayerState playerState in gameStateUpdate.PlayerStates)
+                    if (playerState.PlayerId == Identity.ClientId)
+                    {
+                        TryReconcileServer(playerState, gameStateUpdate.ProcessedInputSequence);
+                        break;
+                    }
 
-                // }
-                // else
-                // {
-                //     StoreForInterpolate(gameStatesUpdate);
-                // }
+                }
+                else
+                {
+                    StoreForInterpolate(gameStatesUpdate);
+                }
                 break;
                     
         }

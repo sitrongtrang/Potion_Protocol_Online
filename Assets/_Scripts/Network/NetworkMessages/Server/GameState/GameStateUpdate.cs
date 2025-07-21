@@ -9,6 +9,12 @@ using Newtonsoft.Json;
 //     public GameStateWrapper() : base(NetworkMessageTypes.Server.GameState.StateUpdate) { }
 // }
 
+public class OuterGameStatesWrapper
+{
+    [JsonProperty("gameStates")]
+    public string GameStatesJson { get; set; }
+}
+
 public class GameStatesUpdate : ServerMessage
 {
     [JsonProperty("gameStatesSnapshot")]
