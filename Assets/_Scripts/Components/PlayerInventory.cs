@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerInventory
 {
-    [SerializeField] private PlayerController _player;
+    private PlayerController _player;
     private InputManager _inputManager;
     private InputAction[] _inputAction;
     private ItemConfig[] items = new ItemConfig[GameConstants.MaxSlot];

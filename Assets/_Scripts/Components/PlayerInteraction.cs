@@ -4,7 +4,7 @@ using UnityEngine;
 public class PlayerInteraction
 {
 
-    [SerializeField] private PlayerController _player;
+    private PlayerController _player;
     private PlayerInventory _playerInventory;
     private InputManager _inputManager;
     private List<Vector2> _itemsInCollision = new();
