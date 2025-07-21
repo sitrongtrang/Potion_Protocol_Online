@@ -10,11 +10,11 @@ public class PlayerController : MonoBehaviour
     public NetworkIdentity Identity { get; private set; }
 
     [Header("Syncing")]
-    private int _serverSequence = -1;
+    private int _serverSequence = int.MaxValue;
     private bool _isReconciling = false;
     private PlayerInputSnapshot _inputListener = new();
     private NetworkPredictionBuffer<PlayerInputMessage, PlayerSnapshot> _networkPredictionBuffer = new(NET_PRED_BUFFER_SIZE);
-    private NetworkInterpolationBuffer<GameStateUpdate> _networkInterpolationBuffer = new(NET_PRED_BUFFER_SIZE / 2);
+    private NetworkInterpolationBuffer<PlayerStateInterpolateData> _networkInterpolationBuffer = new(NET_PRED_BUFFER_SIZE * 2);
 
     [Header("Input")]
     private InputManager _inputManager;
@@ -34,6 +34,7 @@ public class PlayerController : MonoBehaviour
     }
     void Awake()
     {
+        Application.runInBackground = true;
         Identity = GetComponent<NetworkIdentity>();
     }
     void Update()
@@ -225,29 +226,47 @@ public class PlayerController : MonoBehaviour
     }
     private void StoreForInterpolate(GameStatesUpdate gameStatesUpdate)
     {
-        if (_serverSequence == -1)
-        {
-            int firstServerStateIndex = FindServerFirstStateIndex(gameStatesUpdate);
-            if (firstServerStateIndex != -1) _serverSequence = firstServerStateIndex;
-        }
+        bool inInitializing = _serverSequence == int.MaxValue;
 
         for (int i = 0; i < gameStatesUpdate.GameStates.Count; i++)
         {
-            _networkInterpolationBuffer.Add(gameStatesUpdate.GameStates[i]);
+            GameStateUpdate currGameState = gameStatesUpdate.GameStates[i];
+            for (int j = 0; j < currGameState.PlayerStates.Length; j++)
+            {
+                if (currGameState.PlayerStates[j].PlayerId == Identity.ClientId)
+                {
+                    if (inInitializing)
+                    {
+                        if (currGameState.ServerSequence < _serverSequence)
+                        {
+                            _serverSequence = currGameState.ServerSequence;
+                        }
+                    }
+                    else
+                    {
+                        if (currGameState.ServerSequence < _serverSequence)
+                        {
+                            break;
+                        }
+                    }
+                    _networkInterpolationBuffer.Add(new PlayerStateInterpolateData()
+                    {
+                        ServerSequence = currGameState.ServerSequence,
+                        PositionX = currGameState.PlayerStates[j].PositionX,
+                        PositionY = currGameState.PlayerStates[j].PositionY
+                    });
+                    break;
+                }
+            }
         }
     }
     private void TryInterpolate()
     {
-        if (_networkInterpolationBuffer.Poll(_serverSequence, out GameStateUpdate result))
+        Debug.Log("Mine: " + _serverSequence);
+        Debug.Log("Yours: " + _networkInterpolationBuffer.Peek().ServerSequence);
+        if (_networkInterpolationBuffer.Poll(_serverSequence, out PlayerStateInterpolateData result))
         {
-            for (int i = 0; i < result.PlayerStates.Length; i++)
-            {
-                if (result.PlayerStates[i].PlayerId == Identity.ClientId)
-                {
-                    transform.position = new(result.PlayerStates[i].PositionX, result.PlayerStates[i].PositionY);
-                    break;
-                }
-            }
+            transform.position = new(result.PositionX, result.PositionY);
             _serverSequence += 1;
         }
     }
@@ -291,20 +310,28 @@ public class PlayerController : MonoBehaviour
         }
         return index;
     }
-    private int FindServerFirstStateIndex(GameStatesUpdate gameStatesUpdate)
+    private int FindServerFirstState(GameStatesUpdate gameStatesUpdate)
     {
-        int index = 0;
-        int firstStateIndex = int.MaxValue;
+
+        int firstState = int.MaxValue;
         for (int i = 0; i < gameStatesUpdate.GameStates.Count; i++)
         {
-            if (gameStatesUpdate.GameStates[i].ProcessedInputSequence < firstStateIndex)
+            GameStateUpdate curretGameState = gameStatesUpdate.GameStates[i];
+            for (int j = 0; j < curretGameState.PlayerStates.Length; j++)
             {
-                firstStateIndex = gameStatesUpdate.GameStates[i].ProcessedInputSequence;
-                index = i;
+                if (curretGameState.PlayerStates[j].PlayerId == Identity.ClientId)
+                {
+                    if (curretGameState.ServerSequence < firstState)
+                    {
+                        firstState = curretGameState.ServerSequence;
+                    }
+                    break;
+                }
             }
+                
         }
 
-        return index;
+        return firstState;
     }
     #endregion
 }

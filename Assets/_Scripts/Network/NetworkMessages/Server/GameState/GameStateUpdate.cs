@@ -23,7 +23,7 @@ public class GameStatesUpdate : ServerMessage
 
 }
 
-public class GameStateUpdate : IStateSnapshot, IServerStateSnapshot, IComparable<GameStateUpdate>
+public class GameStateUpdate : IStateSnapshot, IServerStateSnapshot
 {
     [JsonProperty("serverSequence")]
     public int ServerSequence;
@@ -34,10 +34,20 @@ public class GameStateUpdate : IStateSnapshot, IServerStateSnapshot, IComparable
 
     int IStateSnapshot.ProcessedInputSequence => ProcessedInputSequence;
     int IServerStateSnapshot.ServerSequence => ServerSequence;
+}
 
-    public int CompareTo(GameStateUpdate other)
+public class PlayerStateInterpolateData : IServerStateSnapshot, IComparable<PlayerStateInterpolateData>
+{
+    public int ServerSequence;
+    public float PositionX;
+    public float PositionY;
+    // public PlayerState State;
+
+    int IServerStateSnapshot.ServerSequence => ServerSequence;
+
+    public int CompareTo(PlayerStateInterpolateData other)
     {
         if (other == null) return 1;
-        return ProcessedInputSequence.CompareTo(other.ProcessedInputSequence);
+        return ServerSequence.CompareTo(other.ServerSequence);
     }
 }
