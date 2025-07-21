@@ -50,11 +50,7 @@ public class PlayerInventory
     
     private void HandleNetworkMessage(ServerMessage message)
     {
-        var result = message.MessageType switch
-        {
-            NetworkMessageTypes.Server.Player.Inventory => HandlePlayerInventory(message),
-            _ => null
-        };
+        
     }
 
     public void ChooseSlot(int index)
@@ -85,46 +81,46 @@ public class PlayerInventory
         return _choosingSlot;
     }
 
-    public object HandlePlayerInventory(ServerMessage message)
-    {
-        var inventoryMessage = (PlayerInventoryMessage)message;
-        if (inventoryMessage.ReceiverId != _player.Identity.ClientId) return null;
+    // public object HandlePlayerInventory(ServerMessage message)
+    // {
+    //     var inventoryMessage = (PlayerInventoryMessage)message;
+    //     if (inventoryMessage.ReceiverId != _player.Identity.ClientId) return null;
 
-        if (inventoryMessage.SlotIndex < 0 || inventoryMessage.SlotIndex >= GameConstants.MaxSlot)
-        {
-            Debug.LogWarning("Invalid slot index in inventory message.");
-            return null;
-        }
+    //     if (inventoryMessage.SlotIndex < 0 || inventoryMessage.SlotIndex >= GameConstants.MaxSlot)
+    //     {
+    //         Debug.LogWarning("Invalid slot index in inventory message.");
+    //         return null;
+    //     }
 
-        object item = null;
-        switch (inventoryMessage.AcTionType)
-        {
-            case "Pickup":
-                item = AddItem(inventoryMessage.ItemId, inventoryMessage.SlotIndex);
-                if (item != null && item is ItemController icPickup)
-                {
-                    ItemPool.Instance.RemoveItem(icPickup);
-                }
-                break;
-            case "Drop":
-                item = RemoveItem(inventoryMessage.ItemId, inventoryMessage.SlotIndex);
-                if (item is not null and ItemController icDrop)
-                {
-                    Vector2 dropPosition = new Vector2(inventoryMessage.DropPositionX, inventoryMessage.DropPositionY);
-                    ItemPool.Instance.SpawnItem(icDrop.Config, dropPosition);
-                }
-                break;
-            case "Transfer":
-            case "Submit":
-                item = RemoveItem(inventoryMessage.ItemId, inventoryMessage.SlotIndex);
-                break;
-            default:
-                Debug.LogWarning($"Unknown action type: {inventoryMessage.AcTionType}");
-                break;
-        }
+    //     object item = null;
+    //     switch (inventoryMessage.AcTionType)
+    //     {
+    //         case "Pickup":
+    //             item = AddItem(inventoryMessage.ItemId, inventoryMessage.SlotIndex);
+    //             if (item != null && item is ItemController icPickup)
+    //             {
+    //                 ItemPool.Instance.RemoveItem(icPickup);
+    //             }
+    //             break;
+    //         case "Drop":
+    //             item = RemoveItem(inventoryMessage.ItemId, inventoryMessage.SlotIndex);
+    //             if (item is not null and ItemController icDrop)
+    //             {
+    //                 Vector2 dropPosition = new Vector2(inventoryMessage.DropPositionX, inventoryMessage.DropPositionY);
+    //                 ItemPool.Instance.SpawnItem(icDrop.Config, dropPosition);
+    //             }
+    //             break;
+    //         case "Transfer":
+    //         case "Submit":
+    //             item = RemoveItem(inventoryMessage.ItemId, inventoryMessage.SlotIndex);
+    //             break;
+    //         default:
+    //             Debug.LogWarning($"Unknown action type: {inventoryMessage.AcTionType}");
+    //             break;
+    //     }
 
-        return item;
-    }
+    //     return item;
+    // }
 
     private object AddItem(string itemId, int slotIndex)
     {

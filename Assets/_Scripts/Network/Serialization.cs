@@ -106,26 +106,6 @@ public static class Serialization
             NetworkMessageTypes.Server.Player.Spawn => JsonConvert.DeserializeObject<PlayerSpawnMessage>(json, Settings),
             NetworkMessageTypes.Server.Player.Connected => JsonConvert.DeserializeObject<PlayerConnectedMessage>(json, Settings),
             NetworkMessageTypes.Server.Player.Disconnected => JsonConvert.DeserializeObject<PlayerDisconnectedMessage>(json, Settings),
-            NetworkMessageTypes.Server.Player.Inventory => JsonConvert.DeserializeObject<PlayerInventoryMessage>(json, Settings),
-            NetworkMessageTypes.Server.Player.Attack => JsonConvert.DeserializeObject<PlayerAttackMessage>(json, Settings),
-            NetworkMessageTypes.Server.Player.Craft => JsonConvert.DeserializeObject<PlayerCraftMessage>(json, Settings),
-            NetworkMessageTypes.Server.Player.Submit => JsonConvert.DeserializeObject<PlayerSubmitMessage>(json, Settings),
-            NetworkMessageTypes.Server.Player.Collide => JsonConvert.DeserializeObject<PlayerCollideMessage>(json, Settings),
-
-            NetworkMessageTypes.Server.Station.Update => JsonConvert.DeserializeObject<StationUpdateMessage>(json, Settings),
-            NetworkMessageTypes.Server.Station.Craft => JsonConvert.DeserializeObject<StationCraftMessage>(json, Settings),
-
-            NetworkMessageTypes.Server.Item.Drop => JsonConvert.DeserializeObject<ItemDropMessage>(json, Settings),
-            // NetworkMessageTypes.Server.Item.Spawn => JsonConvert.DeserializeObject<ItemDropMessage>(json,settings),
-            // NetworkMessageTypes.Server.Item.Pickuped => JsonConvert.DeserializeObject<ItemDropMessage>(json,settings),
-            // NetworkMessageTypes.Server.Item.Despawn => JsonConvert.DeserializeObject<ItemDropMessage>(json,settings),settings,
-
-            NetworkMessageTypes.Server.Enemy.Spawn => JsonConvert.DeserializeObject<EnemySpawnMessage>(json, Settings),
-            NetworkMessageTypes.Server.Enemy.Move => JsonConvert.DeserializeObject<EnemyMoveMessage>(json, Settings),
-            NetworkMessageTypes.Server.Enemy.Death => JsonConvert.DeserializeObject<EnemyDeathMessage>(json, Settings),
-
-            NetworkMessageTypes.Server.Resource.Spawn => JsonConvert.DeserializeObject<ResourceSpawnMessage>(json, Settings),
-            NetworkMessageTypes.Server.Resource.Harvested => JsonConvert.DeserializeObject<ResourceHarvestedMessage>(json, Settings),
 
             NetworkMessageTypes.Server.GameState.StateUpdate => JsonConvert.DeserializeObject<GameStateUpdate>(json, Settings),
             NetworkMessageTypes.Server.GameState.ScoreUpdate => JsonConvert.DeserializeObject<GameScoreUpdateMessage>(json, Settings),

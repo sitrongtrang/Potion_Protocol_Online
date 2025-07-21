@@ -15,55 +15,49 @@ public class StationController : MonoBehaviour
 
     public void HandleNetworkMessage(ServerMessage message)
     {
-        var result = message.MessageType switch
-        {
-            NetworkMessageTypes.Server.Station.Update => HandleStationUpdate(message),
-            NetworkMessageTypes.Server.Station.Craft => HandleStationCraft(message),
-            _ => null,
-        };
     }
 
-    private object HandleStationUpdate(ServerMessage message)
-    {
-        var updateMessage = (StationUpdateMessage)message;
-        if (updateMessage == null) return null;
+    // private object HandleStationUpdate(ServerMessage message)
+    // {
+    //     var updateMessage = (StationUpdateMessage)message;
+    //     if (updateMessage == null) return null;
 
-        if (_items.Count > updateMessage.ItemIds.Length)
-            _items.RemoveRange(updateMessage.ItemIds.Length, _items.Count - updateMessage.ItemIds.Length);
+    //     if (_items.Count > updateMessage.ItemIds.Length)
+    //         _items.RemoveRange(updateMessage.ItemIds.Length, _items.Count - updateMessage.ItemIds.Length);
 
-        else
-        {
-            for (int i = _items.Count; i < updateMessage.ItemIds.Length; i++)
-            {
-                var itemConfig = ItemPool.Instance.GetItemById(updateMessage.ItemIds[i]).Config;
-                if (itemConfig != null)
-                {
-                    _items.Add(itemConfig);
-                }
-            }
-        }
+    //     else
+    //     {
+    //         for (int i = _items.Count; i < updateMessage.ItemIds.Length; i++)
+    //         {
+    //             var itemConfig = ItemPool.Instance.GetItemById(updateMessage.ItemIds[i]).Config;
+    //             if (itemConfig != null)
+    //             {
+    //                 _items.Add(itemConfig);
+    //             }
+    //         }
+    //     }
 
-        if (updateMessage.CraftSuccess)
-        {
-            var craftedItem = ItemPool.Instance.GetItemById(updateMessage.CraftedItemId);
-            if (craftedItem != null)
-            {
-                Vector2 dropPosition = new Vector2(updateMessage.DropPositionX, updateMessage.DropPositionY);
-                ItemPool.Instance.SpawnItem(craftedItem.Config, dropPosition);
-            }
-        }
+    //     if (updateMessage.CraftSuccess)
+    //     {
+    //         var craftedItem = ItemPool.Instance.GetItemById(updateMessage.CraftedItemId);
+    //         if (craftedItem != null)
+    //         {
+    //             Vector2 dropPosition = new Vector2(updateMessage.DropPositionX, updateMessage.DropPositionY);
+    //             ItemPool.Instance.SpawnItem(craftedItem.Config, dropPosition);
+    //         }
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
-    private object HandleStationCraft(ServerMessage message)
-    {
-        var craftMessage = (StationCraftMessage)message;
-        if (craftMessage == null) return null;
+    // private object HandleStationCraft(ServerMessage message)
+    // {
+    //     var craftMessage = (StationCraftMessage)message;
+    //     if (craftMessage == null) return null;
 
-        StartCoroutine(WaitForCraft(craftMessage.CraftTime));
-        return null;
-    }
+    //     StartCoroutine(WaitForCraft(craftMessage.CraftTime));
+    //     return null;
+    // }
 
     private IEnumerator WaitForCraft(float craftTime)
     {
