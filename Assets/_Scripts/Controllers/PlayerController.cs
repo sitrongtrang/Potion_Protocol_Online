@@ -227,7 +227,8 @@ public class PlayerController : MonoBehaviour
     {
         if (_serverSequence == -1)
         {
-            _serverSequence = FindServerFirstStateIndex(gameStatesUpdate);
+            int firstServerStateIndex = FindServerFirstStateIndex(gameStatesUpdate);
+            if (firstServerStateIndex != -1) _serverSequence = firstServerStateIndex;
         }
 
         for (int i = 0; i < gameStatesUpdate.GameStates.Length; i++)
