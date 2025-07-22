@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviour
     }
     void Awake()
     {
-        // Application.runInBackground = true;
+        Application.runInBackground = true;
         Identity = GetComponent<NetworkIdentity>();
     }
     void Update()
