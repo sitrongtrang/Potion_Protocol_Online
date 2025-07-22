@@ -110,7 +110,6 @@ public class NetworkManager : MonoBehaviour
             SendMessage(new AuthMessage
             {
                 Token = _authToken,
-                DeviceId = SystemInfo.deviceUniqueIdentifier
             });
         }
     }

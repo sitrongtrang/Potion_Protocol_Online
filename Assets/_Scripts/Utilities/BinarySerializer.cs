@@ -7,6 +7,15 @@ using System.Reflection;
 
 public static class BinarySerializer
 {
+    public static byte[] SerializeToBytes<T>(T obj)
+    {
+        using var memoryStream = new MemoryStream();
+        using var writer = new BinaryWriter(memoryStream);
+        Serialize(writer, obj);
+        writer.Flush();
+        return memoryStream.ToArray();
+    }
+
     public static void Serialize<T>(BinaryWriter writer, T obj)
     {
         foreach (var field in GetOrderedSerializableFields(typeof(T)))
@@ -14,6 +23,13 @@ public static class BinarySerializer
             object value = field.GetValue(obj);
             WriteValue(writer, value, field.FieldType);
         }
+    }
+
+    public static T DeserializeFromBytes<T>(byte[] data) where T : new()
+    {
+        using var memoryStream = new MemoryStream(data);
+        using var reader = new BinaryReader(memoryStream);
+        return Deserialize<T>(reader);
     }
 
     public static T Deserialize<T>(BinaryReader reader) where T : new()
@@ -147,13 +163,13 @@ public static class BinarySerializer
             .Invoke(null, new object[] { reader });
     }
 
-    private static void WriteInt16BigEndian(BinaryWriter writer, short value)
+    public static void WriteInt16BigEndian(BinaryWriter writer, short value)
     {
         writer.Write((byte)((value >> 8) & 0xFF));
         writer.Write((byte)(value & 0xFF));
     }
 
-    private static void WriteInt32BigEndian(BinaryWriter writer, int value)
+    public static void WriteInt32BigEndian(BinaryWriter writer, int value)
     {
         writer.Write((byte)((value >> 24) & 0xFF));
         writer.Write((byte)((value >> 16) & 0xFF));
@@ -161,7 +177,7 @@ public static class BinarySerializer
         writer.Write((byte)(value & 0xFF));
     }
 
-    private static void WriteFloat32BigEndian(BinaryWriter writer, float value)
+    public static void WriteFloat32BigEndian(BinaryWriter writer, float value)
     {
         uint intValue = BitConverter.ToUInt32(BitConverter.GetBytes(value), 0);
         writer.Write((byte)((intValue >> 24) & 0xFF));
@@ -170,12 +186,12 @@ public static class BinarySerializer
         writer.Write((byte)(intValue & 0xFF));
     }
 
-    private static short ReadInt16BigEndian(BinaryReader reader)
+    public static short ReadInt16BigEndian(BinaryReader reader)
     {
         return (short)((reader.ReadByte() << 8) | reader.ReadByte());
     }
 
-    private static int ReadInt32BigEndian(BinaryReader reader)
+    public static int ReadInt32BigEndian(BinaryReader reader)
     {
         return (reader.ReadByte() << 24) |
                (reader.ReadByte() << 16) |
@@ -183,7 +199,7 @@ public static class BinarySerializer
                reader.ReadByte();
     }
 
-    private static float ReadFloat32BigEndian(BinaryReader reader)
+    public static float ReadFloat32BigEndian(BinaryReader reader)
     {
         byte[] bytes = new byte[4];
         bytes[0] = reader.ReadByte();

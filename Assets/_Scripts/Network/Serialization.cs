@@ -8,14 +8,6 @@ using Newtonsoft.Json;
 
 public static class Serialization
 {
-    // You must assign this from the outside (before serializing)
-    public static Func<ClientMessage, int> GenerateMessageId = _ => UnityEngine.Random.Range(1, int.MaxValue);
-    public static readonly JsonSerializerSettings Settings = new()
-    {
-        ContractResolver = new JsonPropertyOnlyContractResolver(),
-        // MissingMemberHandling = MissingMemberHandling.Ignore
-    };
-
     #region Core
 
     /// <summary>
@@ -25,23 +17,15 @@ public static class Serialization
     {
         try
         {
-            int messageId = GenerateMessageId?.Invoke(message) ?? UnityEngine.Random.Range(1, int.MaxValue);
+            byte[] payloadBytes = CreateByteFromType(message);
 
-            // 1. Wrap and encode JSON
-            string payloadJson = JsonConvert.SerializeObject(message);
-            string wrappedJson = "{\"payload\":" + payloadJson + "}";
-            byte[] payloadBytes = Encoding.UTF8.GetBytes(wrappedJson);
-
-            // 2. Calculate message length (excluding the 2-byte length field itself)
-            short messageLength = (short)(2 + 4 + payloadBytes.Length); // type + id + payload
+            short messageLength = (short)(2 + payloadBytes.Length);
 
             using MemoryStream stream = new();
             using BinaryWriter writer = new(stream);
 
-            // 3. Write fields (all in big-endian)
-            WriteInt16BigEndian(writer, messageLength);
-            WriteInt16BigEndian(writer, message.MessageType);
-            WriteInt32BigEndian(writer, messageId);
+            BinarySerializer.WriteInt16BigEndian(writer, messageLength);
+            BinarySerializer.WriteInt16BigEndian(writer, message.MessageType);
             writer.Write(payloadBytes);
 
             return stream.ToArray();
@@ -51,6 +35,23 @@ public static class Serialization
             Debug.LogError($"[Serialization Error] {e.Message}");
             return null;
         }
+    }
+
+    private static byte[] CreateByteFromType(ClientMessage message)
+    {
+        return message.MessageType switch
+        {
+            NetworkMessageTypes.Client.Authentication.TryAuth => BinarySerializer.SerializeToBytes((AuthMessage)message),
+            NetworkMessageTypes.Client.Authentication.TryReconnect => BinarySerializer.SerializeToBytes((ReconnectMessage)message),
+
+            NetworkMessageTypes.Client.Pregame.RequestSpawn => BinarySerializer.SerializeToBytes((PlayerSpawnRequest)message),
+
+            NetworkMessageTypes.Client.Ingame.Input => BinarySerializer.SerializeToBytes((PlayerInputMessage)message),
+
+            NetworkMessageTypes.Client.System.Ping => BinarySerializer.SerializeToBytes((PingMessage)message),
+
+            _ => null
+        };
     }
 
     /// <summary>
@@ -63,17 +64,15 @@ public static class Serialization
             using MemoryStream stream = new(rawData);
             using BinaryReader reader = new(stream);
 
-            short messageLength = ReadInt16BigEndian(reader);
+            short messageLength = BinarySerializer.ReadInt16BigEndian(reader);
 
-            short messageType = ReadInt16BigEndian(reader);
-            int messageId = ReadInt32BigEndian(reader);
-            short statusCode = ReadInt16BigEndian(reader);
+            short messageType = BinarySerializer.ReadInt16BigEndian(reader);
 
-            byte[] payloadBytes = reader.ReadBytes(messageLength - (2 + 4 + 2));
-            string json = Encoding.UTF8.GetString(payloadBytes);
+            short statusCode = BinarySerializer.ReadInt16BigEndian(reader);
 
-            // Debug.Log($"[Deserialize] type={messageType}, id={messageId}, status={statusCode}, json={json}");
-            return CreateMessageFromType(messageType, json);
+            byte[] payloadBytes = reader.ReadBytes(messageLength - (2 + 2));
+
+            return CreateMessageFromType(messageType, payloadBytes);
         }
         catch (Exception e)
         {
@@ -86,72 +85,62 @@ public static class Serialization
     /// <summary>
     /// Maps short messageType codes to actual message types and deserializes from JSON.
     /// </summary>
-    private static ServerMessage CreateMessageFromType(short messageType, string json)
+    private static ServerMessage CreateMessageFromType(short messageType, byte[] payloadBytes)
     {
         return messageType switch
         {
             // Only have cases for server broadcast json
-            NetworkMessageTypes.Server.System.AuthSuccess => JsonConvert.DeserializeObject<AuthSuccessMessage>(json, Settings),
-            NetworkMessageTypes.Server.System.Pong => JsonConvert.DeserializeObject<PongMessage>(json, Settings),
-            // NetworkMessageTypes.System.Kick => JsonConvert.DeserializeObject<KickMessage>(json,settings),settings,
+            NetworkMessageTypes.Server.System.AuthSuccess => BinarySerializer.DeserializeFromBytes<AuthSuccessMessage>(payloadBytes),
+            NetworkMessageTypes.Server.System.Pong => BinarySerializer.DeserializeFromBytes<PongMessage>(payloadBytes),
+            // NetworkMessageTypes.System.Kick => BinarySerializer.DeserializeFromBytes<KickMessage>(payloadBytes)
 
-            NetworkMessageTypes.Server.Player.Spawn => JsonConvert.DeserializeObject<PlayerSpawnMessage>(json, Settings),
-            NetworkMessageTypes.Server.Player.Connected => JsonConvert.DeserializeObject<PlayerConnectedMessage>(json, Settings),
-            NetworkMessageTypes.Server.Player.Disconnected => JsonConvert.DeserializeObject<PlayerDisconnectedMessage>(json, Settings),
+            NetworkMessageTypes.Server.Player.Spawn => BinarySerializer.DeserializeFromBytes<PlayerSpawnMessage>(payloadBytes),
+            NetworkMessageTypes.Server.Player.Connected => BinarySerializer.DeserializeFromBytes<PlayerConnectedMessage>(payloadBytes),
+            NetworkMessageTypes.Server.Player.Disconnected => BinarySerializer.DeserializeFromBytes<PlayerDisconnectedMessage>(payloadBytes),
 
-            NetworkMessageTypes.Server.GameState.StateUpdate => gameStatesUpdate(json),
-            NetworkMessageTypes.Server.GameState.ScoreUpdate => JsonConvert.DeserializeObject<GameScoreUpdateMessage>(json, Settings),
-            NetworkMessageTypes.Server.GameState.TimeUpdate => JsonConvert.DeserializeObject<GameTimeUpdateMessage>(json, Settings),
-
-
+            NetworkMessageTypes.Server.GameState.StateUpdate => BinarySerializer.DeserializeFromBytes<GameStatesUpdate>(payloadBytes),
             _ => null
         };
     }
     #endregion
 
-    public static GameStatesUpdate gameStatesUpdate(string json)
-    {
-        var outerWrapper = JsonConvert.DeserializeObject<OuterGameStatesWrapper>(json, Settings);
-        return JsonConvert.DeserializeObject<GameStatesUpdate>(outerWrapper.GameStatesJson, Settings);
-    }
-
     #region Utilities
-    private static void WriteInt16BigEndian(BinaryWriter writer, short value)
-    {
-        writer.Write((byte)((value >> 8) & 0xFF));
-        writer.Write((byte)(value & 0xFF));
-    }
-    private static void WriteInt32BigEndian(BinaryWriter writer, int value)
-    {
-        writer.Write((byte)((value >> 24) & 0xFF));
-        writer.Write((byte)((value >> 16) & 0xFF));
-        writer.Write((byte)((value >> 8) & 0xFF));
-        writer.Write((byte)(value & 0xFF));
-    }
-    private static void WriteFloat32BigEndian(BinaryWriter writer, float value)
-    {
-        byte[] bytes = BitConverter.GetBytes(value);
-        if (BitConverter.IsLittleEndian)
-            Array.Reverse(bytes);
-        writer.Write(bytes);
-    }
+    // private static void WriteInt16BigEndian(BinaryWriter writer, short value)
+    // {
+    //     writer.Write((byte)((value >> 8) & 0xFF));
+    //     writer.Write((byte)(value & 0xFF));
+    // }
+    // private static void WriteInt32BigEndian(BinaryWriter writer, int value)
+    // {
+    //     writer.Write((byte)((value >> 24) & 0xFF));
+    //     writer.Write((byte)((value >> 16) & 0xFF));
+    //     writer.Write((byte)((value >> 8) & 0xFF));
+    //     writer.Write((byte)(value & 0xFF));
+    // }
+    // private static void WriteFloat32BigEndian(BinaryWriter writer, float value)
+    // {
+    //     byte[] bytes = BitConverter.GetBytes(value);
+    //     if (BitConverter.IsLittleEndian)
+    //         Array.Reverse(bytes);
+    //     writer.Write(bytes);
+    // }
 
-    private static short ReadInt16BigEndian(BinaryReader reader)
-    {
-        byte[] bytes = reader.ReadBytes(2);
-        return (short)((bytes[0] << 8) | bytes[1]);
-    }
-    private static int ReadInt32BigEndian(BinaryReader reader)
-    {
-        byte[] bytes = reader.ReadBytes(4);
-        return (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
-    }
-    private static float ReadFloat32BigEndian(BinaryReader reader)
-    {
-        byte[] bytes = reader.ReadBytes(4);
-        if (BitConverter.IsLittleEndian)
-            Array.Reverse(bytes);
-        return BitConverter.ToSingle(bytes, 0);
-    }
+    // private static short ReadInt16BigEndian(BinaryReader reader)
+    // {
+    //     byte[] bytes = reader.ReadBytes(2);
+    //     return (short)((bytes[0] << 8) | bytes[1]);
+    // }
+    // private static int ReadInt32BigEndian(BinaryReader reader)
+    // {
+    //     byte[] bytes = reader.ReadBytes(4);
+    //     return (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+    // }
+    // private static float ReadFloat32BigEndian(BinaryReader reader)
+    // {
+    //     byte[] bytes = reader.ReadBytes(4);
+    //     if (BitConverter.IsLittleEndian)
+    //         Array.Reverse(bytes);
+    //     return BitConverter.ToSingle(bytes, 0);
+    // }
     #endregion
 }

@@ -23,7 +23,7 @@ public class LoginManager : MonoBehaviour
             Password = password
         };
 
-        string json = JsonConvert.SerializeObject(loginData, Serialization.Settings);
+        string json = JsonConvert.SerializeObject(loginData);
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
 
         UnityWebRequest request = new UnityWebRequest(_loginUrl.StaticURL, "POST");
@@ -35,10 +35,7 @@ public class LoginManager : MonoBehaviour
 
         if (request.result == UnityWebRequest.Result.Success)
         {
-            // Debug.Log("Login successful: " + request.downloadHandler.text);
-            // Parse token or user info if needed
-
-            LoginSuccess loginSuccess = JsonConvert.DeserializeObject<LoginSuccess>(request.downloadHandler.text, Serialization.Settings);
+            LoginSuccess loginSuccess = JsonConvert.DeserializeObject<LoginSuccess>(request.downloadHandler.text);
             NetworkManager.Instance.SetAuthenToken(loginSuccess.LoginSuccessDat.Token);
             NetworkManager.Instance.SetClientId(loginSuccess.LoginSuccessDat.UserId);
             NetworkManager.Instance.Authenticate();
