@@ -15,7 +15,7 @@ public enum InputFlags
 }
 
 [Serializable]
-public class PlayerInputMessage : ClientMessage, IInputSnapshot
+public class PlayerInputMessage : IInputSnapshot
 {
     [JsonProperty("inputSequence")]
     public int InputSequence;
@@ -27,7 +27,7 @@ public class PlayerInputMessage : ClientMessage, IInputSnapshot
     [JsonProperty("inputFlags")]
     public int Flags;
     public int SelectedSlot;
-    public PlayerInputMessage(PlayerInputSnapshot playerInputSnapshot) : base(NetworkMessageTypes.Client.Ingame.Input)
+    public PlayerInputMessage(PlayerInputSnapshot playerInputSnapshot)
     {
         MoveDirX = playerInputSnapshot.MoveDir.x;
         MoveDirY = playerInputSnapshot.MoveDir.y;
