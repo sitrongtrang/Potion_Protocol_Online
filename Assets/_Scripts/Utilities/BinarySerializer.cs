@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -94,7 +93,7 @@ public static class BinarySerializer
             if (str != null)
             {
                 foreach (char c in str)
-                    writer.Write(c);
+                    WriteInt16BigEndian(writer, (short)c);
             }
         }
         else if (type.IsArray)
@@ -132,8 +131,12 @@ public static class BinarySerializer
         if (type == typeof(string))
         {
             short length = ReadInt16BigEndian(reader);
-            byte[] utf8Bytes = reader.ReadBytes(length);
-            return System.Text.Encoding.UTF8.GetString(utf8Bytes);
+            char[] chars = new char[length];
+            for (int i = 0; i < length; i++)
+            {
+                chars[i] = (char)ReadInt16BigEndian(reader);
+            }
+            return new string(chars);
         }
 
         if (type.IsArray)
