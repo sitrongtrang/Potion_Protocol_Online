@@ -215,12 +215,6 @@ public class NetworkManager : MonoBehaviour
         if (!_isConnected || _stream == null || !_stream.CanWrite)
             return;
 
-        // Add client ID to all outgoing messages if authenticated
-        if (_isAuthenticated && string.IsNullOrEmpty(message.SenderId))
-        {
-            message.SenderId = _clientId;
-        }
-
         try
         {
             byte[] data = Serialization.SerializeMessage(message);
