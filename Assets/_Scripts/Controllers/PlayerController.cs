@@ -4,8 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkIdentity))]
 public class PlayerController : MonoBehaviour
 {
-    private const int NET_PRED_BUFFER_SIZE = 8;
-    private const int NET_INTERPOLATION_BUFFER_SIZE = 5;
+    
     [Header("Components")]
     private float _sendTimer = 0f;
     public NetworkIdentity Identity { get; private set; }
@@ -14,8 +13,8 @@ public class PlayerController : MonoBehaviour
     private int _serverSequence = int.MaxValue;
     private bool _isReconciling = false;
     private PlayerInputSnapshot _inputListener = new();
-    private NetworkPredictionBuffer<PlayerInputMessage, PlayerSnapshot> _networkPredictionBuffer = new(NET_PRED_BUFFER_SIZE);
-    private NetworkInterpolationBuffer<PlayerStateInterpolateData> _networkInterpolationBuffer = new(NET_INTERPOLATION_BUFFER_SIZE);
+    private NetworkPredictionBuffer<PlayerInputMessage, PlayerSnapshot> _networkPredictionBuffer = new(NetworkConstants.NET_PRED_BUFFER_SIZE);
+    private NetworkInterpolationBuffer<PlayerStateInterpolateData> _networkInterpolationBuffer = new(NetworkConstants.NET_INTERPOLATION_BUFFER_SIZE);
 
     [Header("Input")]
     private InputManager _inputManager;
@@ -56,9 +55,9 @@ public class PlayerController : MonoBehaviour
         }
 
         _sendTimer += Time.deltaTime;
-        while (_sendTimer >= NetworkManager.NET_TICK_INTERVAL)
+        while (_sendTimer >= NetworkConstants.NET_TICK_INTERVAL)
         {
-            _sendTimer -= NetworkManager.NET_TICK_INTERVAL;
+            _sendTimer -= NetworkConstants.NET_TICK_INTERVAL;
 
             NetworkManager.Instance.SendMessage(new BatchPlayerInputMessage
             {
@@ -251,7 +250,7 @@ public class PlayerController : MonoBehaviour
                         }
                         else
                         {
-                            if (currGameState.ServerSequence - _serverSequence > NET_INTERPOLATION_BUFFER_SIZE)
+                            if (currGameState.ServerSequence - _serverSequence > NetworkConstants.NET_INTERPOLATION_BUFFER_SIZE)
                             {
                                 _serverSequence = currGameState.ServerSequence;
                             }
