@@ -201,7 +201,7 @@ public class PlayerController : MonoBehaviour
     private void ReconcileServer(PlayerState state, int processedInputSequence, PlayerInputMessage[] inputSnapshots, int fromIndex)
     {
         _isReconciling = true;
-        _networkPredictionBuffer.ClearStateBuffer();
+        _networkPredictionBuffer.ClearStateSnapshot();
 
         _networkPredictionBuffer.EnqueueState(new PlayerSnapshot
         {

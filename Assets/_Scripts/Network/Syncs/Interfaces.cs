@@ -13,18 +13,17 @@ public interface IServerStateSnapshot
 {
     public int ServerSequence { get; }
 }
-public interface INetworkSimulator<TInput, TSnapshot>
+public interface INetworkSimulator<TInputListener, TInputMessage, TSnapshot>
 {
-    void Simulate(TInput input, Action<TInput> applyInput);
+    void Simulate(TInputListener input, Func<TInputListener, TSnapshot> simulateAndReturnSnapshot);
     void Reconcile(
         TSnapshot serverSnapshot,
         int processedInputSequence,
         Func<TSnapshot[]> getStateBuffer,
-        Func<TInput[]> getInputBuffer,
+        Func<TInputMessage[]> getInputBuffer,
         Action<TSnapshot> applySnapshot,
-        Func<TInput, TSnapshot> simulateFromInput
+        Func<TInputMessage, TSnapshot> simulateFromInput
     );
-    void EnqueueInput(TInput input);
     void Reset();
 }
 public interface INetworkInterpolator<TState>

@@ -42,8 +42,13 @@ public class NetworkPredictionBuffer<TInput, TState>
         _stateBuffer.Enqueue(state);
     }
 
-    public void ClearStateBuffer()
+    public void ClearStateSnapshot()
     {
         _stateBuffer.Clear();
+    }
+
+    public void ClearInputSnapshot()
+    {
+        _inputBuffer.Clear();
     }
 }
