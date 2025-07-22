@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class QuadTree
 {
-    private const int MAX_OBJECTS = 4;
+    private const int MAX_OBJECTS = 16;
     private const int MAX_LEVELS = 5;
     private int _level;
     private List<AABBCollider> _colliders;
@@ -130,16 +130,16 @@ public class QuadTree
         return _bounds.Overlaps(rect);
     }
     
-    public List<AABBCollider> RetrieveCollided(List<AABBCollider> returnColliders, Rect rect)
+    public List<AABBCollider> RetrieveCollided(AABBCollider collider, List<AABBCollider> returnColliders)
     {
-        if (!IsColliding(rect))
+        if (!IsColliding(collider.Bounds))
         {
             return returnColliders;
         }
 
         for (int i = 0; i < _colliders.Count; i++)
         {
-            if (rect.Overlaps(_colliders[i].Bounds))
+            if (collider.Bounds.Overlaps(_colliders[i].Bounds) && collider.Mask.Contains(_colliders[i].Layer))
             {
                 returnColliders.Add(_colliders[i]);
             }
@@ -149,7 +149,7 @@ public class QuadTree
         {
             for (int i = 0; i < _nodes.Length; i++)
             {
-                _nodes[i].RetrieveCollided(returnColliders, rect);
+                _nodes[i].RetrieveCollided(collider, returnColliders);
             }
         }
 

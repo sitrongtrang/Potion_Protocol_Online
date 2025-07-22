@@ -2,10 +2,13 @@ using UnityEngine;
 
 public class AABBCollider : MonoBehaviour
 {
-    public Vector2 BottomLeft;
-    public Vector2 Size;
+    private Vector2 _bottomLeft;
+    private Vector2 _size;
 
-    public Rect Bounds => new Rect(BottomLeft, Size);
+    public MyLayerMask Mask;
+    public int Layer;
+
+    public Rect Bounds => new Rect(_bottomLeft, _size);
 
     public bool IsColliding(AABBCollider other)
     {
