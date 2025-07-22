@@ -20,9 +20,6 @@ public interface INetworkSimulator<TInputListener, TInputMessage, TSnapshot>
     void Simulate(TInputListener input, Func<TInputListener, TSnapshot> simulateAndReturnSnapshot);
     void Reconcile(
         TSnapshot serverSnapshot,
-        int processedInputSequence,
-        Func<TSnapshot[]> getStateBuffer,
-        Func<TInputMessage[]> getInputBuffer,
         Action<TSnapshot> applySnapshot,
         Func<TInputMessage, TSnapshot> simulateFromInput
     );

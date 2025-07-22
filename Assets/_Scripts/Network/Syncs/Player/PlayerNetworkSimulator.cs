@@ -6,6 +6,9 @@ public class PlayerNetworkSimulator : INetworkSimulator<PlayerInputSnapshot, Pla
     private readonly NetworkPredictionBuffer<PlayerInputMessage, PlayerSnapshot> _buffer;
     private bool _isReconciling = false;
 
+    public PlayerInputMessage[] InputBufferAsArray => _buffer.InputBufferAsArray;
+    public PlayerSnapshot[] StateBufferAsArray => _buffer.StateBufferAsArray;
+
     public PlayerNetworkSimulator(int bufferSize)
     {
         _buffer = new(bufferSize);
@@ -23,6 +26,7 @@ public class PlayerNetworkSimulator : INetworkSimulator<PlayerInputSnapshot, Pla
         };
 
         var snapshot = applyInput(input);
+        snapshot.ProcessedInputSequence = sequence;
 
         _buffer.EnqueueInput(message);
         _buffer.EnqueueState(snapshot);
@@ -30,21 +34,18 @@ public class PlayerNetworkSimulator : INetworkSimulator<PlayerInputSnapshot, Pla
 
     public void Reconcile(
         PlayerSnapshot serverSnapshot,
-        int processedInputSequence,
-        Func<PlayerSnapshot[]> getStateBuffer,
-        Func<PlayerInputMessage[]> getInputBuffer,
         Action<PlayerSnapshot> applySnapshot,
         Func<PlayerInputMessage, PlayerSnapshot> simulateFromInput
     )
     {
-        var stateSnapshots = getStateBuffer();
-        var inputSnapshots = getInputBuffer();
+        var stateSnapshots = (PlayerSnapshot[])_buffer.StateBufferAsArray.Clone();
+        var inputSnapshots = (PlayerInputMessage[])_buffer.InputBufferAsArray.Clone();
 
         int index = -1;
 
         for (int i = 0; i < stateSnapshots.Length; i++)
         {
-            if (stateSnapshots[i].ProcessedInputSequence == processedInputSequence)
+            if (stateSnapshots[i].ProcessedInputSequence == serverSnapshot.ProcessedInputSequence)
             {
                 float dist = Vector2.Distance(serverSnapshot.Position, stateSnapshots[i].Position);
                 if (dist >= 0.1f)

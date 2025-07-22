@@ -18,7 +18,7 @@ public class OuterGameStatesWrapper
 public class GameStatesUpdate : ServerMessage
 {
     [JsonProperty("gameStatesSnapshot")]
-    public List<GameStateUpdate> GameStates;
+    public GameStateUpdate[] GameStates;
     public GameStatesUpdate() : base(NetworkMessageTypes.Server.GameState.StateUpdate) { }
 
 }
