@@ -15,20 +15,12 @@ public abstract class NetworkMessage
 [Serializable]
 public abstract class ClientMessage : NetworkMessage
 {
-    public long ClientSendTime;
-    public long ClientEstimatedServerTime;
-    protected ClientMessage(short messageType) : base(messageType)
-    {
-        ClientSendTime = TimeSyncUtils.GetUnixTimeMilliseconds();
-        if (NetworkTime.Instance != null)
-            ClientEstimatedServerTime = NetworkTime.Instance.EstimatedServerTime;
-    }
+    protected ClientMessage(short messageType) : base(messageType) {  }
 }
 
 [Serializable]
 public abstract class ServerMessage : NetworkMessage
 {
-    public long ServerSendTime;
     protected ServerMessage(short messageType) : base(messageType) { }
 }
 

@@ -37,7 +37,6 @@ public class LoginManager : MonoBehaviour
         {
             LoginSuccess loginSuccess = JsonConvert.DeserializeObject<LoginSuccess>(request.downloadHandler.text);
             NetworkManager.Instance.SetAuthenToken(loginSuccess.LoginSuccessDat.Token);
-            NetworkManager.Instance.SetClientId(loginSuccess.LoginSuccessDat.UserId);
             NetworkManager.Instance.Authenticate();
         }
         else

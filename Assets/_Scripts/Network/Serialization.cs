@@ -32,7 +32,7 @@ public static class Serialization
         }
         catch (Exception e)
         {
-            Debug.LogError($"[Serialization Error] {e.Message}");
+            Debug.LogError($"[Serialization Error] {message.MessageType}");
             return null;
         }
     }
@@ -49,6 +49,7 @@ public static class Serialization
             NetworkMessageTypes.Client.Ingame.Input => BinarySerializer.SerializeToBytes((PlayerInputMessage)message),
 
             NetworkMessageTypes.Client.System.Ping => BinarySerializer.SerializeToBytes((PingMessage)message),
+            NetworkMessageTypes.Client.System.GetUserInfo => BinarySerializer.SerializeToBytes((GetUserInfoClient)message),
 
             _ => null
         };
@@ -92,6 +93,7 @@ public static class Serialization
             // Only have cases for server broadcast json
             NetworkMessageTypes.Server.System.AuthSuccess => BinarySerializer.DeserializeFromBytes<AuthSuccessMessage>(payloadBytes),
             NetworkMessageTypes.Server.System.Pong => BinarySerializer.DeserializeFromBytes<PongMessage>(payloadBytes),
+            NetworkMessageTypes.Server.System.GetUserInfo => BinarySerializer.DeserializeFromBytes<GetUserInfoServer>(payloadBytes),
             // NetworkMessageTypes.System.Kick => BinarySerializer.DeserializeFromBytes<KickMessage>(payloadBytes)
 
             NetworkMessageTypes.Server.Player.Spawn => BinarySerializer.DeserializeFromBytes<PlayerSpawnMessage>(payloadBytes),

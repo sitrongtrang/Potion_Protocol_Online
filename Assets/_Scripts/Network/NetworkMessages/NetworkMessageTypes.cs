@@ -21,6 +21,7 @@ public static class NetworkMessageTypes
 
         public static class System
         {
+            public const short GetUserInfo = 5;
             public const short Ping = 4;
         }
     }
@@ -31,10 +32,11 @@ public static class NetworkMessageTypes
         {
             public const short AuthSuccess = 0;
             public const short Pong = 20;
+            public const short GetUserInfo = 4;
         }
         public static class Player
         {
-            public const short Spawn = 4;
+            public const short Spawn = 17777;
             public const short Connected = 1001;
             public const short Disconnected = 1002;
         }

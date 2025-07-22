@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,7 +19,8 @@ public static class BinarySerializer
 
     public static void Serialize<T>(BinaryWriter writer, T obj)
     {
-        foreach (var field in GetOrderedSerializableFields(typeof(T)))
+        var fields = GetOrderedSerializableFields(typeof(T));
+        foreach (var field in fields)
         {
             object value = field.GetValue(obj);
             WriteValue(writer, value, field.FieldType);
@@ -35,37 +37,36 @@ public static class BinarySerializer
     public static T Deserialize<T>(BinaryReader reader) where T : new()
     {
         T obj = new();
-        foreach (var field in GetOrderedSerializableFields(typeof(T)))
-        {
-            object value = ReadValue(reader, field.FieldType);
-            field.SetValue(obj, value);
-        }
+        var fields = GetOrderedSerializableFields(typeof(T));
+        foreach (var field in fields)
+            {
+                object value = ReadValue(reader, field.FieldType);
+                field.SetValue(obj, value);
+            }
+
         return obj;
     }
 
     private static List<FieldInfo> GetOrderedSerializableFields(Type type)
     {
-        return GetAllFields(type)
-            .Select(f => new
-            {
-                Field = f,
-                Attribute = f.GetCustomAttribute<FieldOrderAttribute>()
-            })
-            .Where(x => x.Attribute != null)
-            .OrderBy(x => x.Attribute.Order)
-            .Select(x => x.Field)
+        return GetAllSerializableFields(type)
+            .OrderBy(f => f.GetCustomAttribute<FieldOrderAttribute>().Order)
             .ToList();
     }
 
-    private static IEnumerable<FieldInfo> GetAllFields(Type type)
+    private static IEnumerable<FieldInfo> GetAllSerializableFields(Type type)
     {
-        if (type == null || type == typeof(object))
-            return Enumerable.Empty<FieldInfo>();
-
         BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        return type.GetFields(flags)
-                   .Where(f => !f.IsStatic)
-                   .Concat(GetAllFields(type.BaseType));
+        while (type != null && type != typeof(object))
+        {
+            foreach (var field in type.GetFields(flags))
+            {
+                if (field.IsStatic) continue;
+                if (field.GetCustomAttribute<FieldOrderAttribute>() != null)
+                    yield return field;
+            }
+            type = type.BaseType;
+        }
     }
 
     private static void WriteValue(BinaryWriter writer, object value, Type type)
@@ -89,7 +90,7 @@ public static class BinarySerializer
         else if (type == typeof(string))
         {
             string str = (string)value;
-            writer.Write((short)(str?.Length ?? 0));
+            WriteInt16BigEndian(writer, (short)(str?.Length ?? 0));
             if (str != null)
             {
                 foreach (char c in str)
@@ -131,15 +132,13 @@ public static class BinarySerializer
         if (type == typeof(string))
         {
             short length = ReadInt16BigEndian(reader);
-            char[] chars = new char[length];
-            for (int i = 0; i < length; i++)
-                chars[i] = reader.ReadChar();
-            return new string(chars);
+            byte[] utf8Bytes = reader.ReadBytes(length);
+            return System.Text.Encoding.UTF8.GetString(utf8Bytes);
         }
 
         if (type.IsArray)
         {
-            short length = reader.ReadInt16();
+            short length = ReadInt16BigEndian(reader);
             Type elementType = type.GetElementType();
             Array array = Array.CreateInstance(elementType, length);
             for (int i = 0; i < length; i++)
@@ -149,7 +148,7 @@ public static class BinarySerializer
 
         if (typeof(IList).IsAssignableFrom(type))
         {
-            short length = reader.ReadInt16();
+            short length = ReadInt16BigEndian(reader);
             Type elementType = type.IsGenericType ? type.GetGenericArguments()[0] : typeof(object);
             IList list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType));
             for (int i = 0; i < length; i++)
@@ -222,4 +221,3 @@ public class FieldOrderAttribute : Attribute
         Order = order;
     }
 }
-

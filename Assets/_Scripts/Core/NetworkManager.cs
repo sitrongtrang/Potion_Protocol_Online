@@ -238,6 +238,9 @@ public class NetworkManager : MonoBehaviour
             case NetworkMessageTypes.Server.System.Pong:
                 NetworkTime.Instance?.HandlePong((PongMessage)message);
                 return true;
+            case NetworkMessageTypes.Server.System.GetUserInfo:
+                SetUserInfo((GetUserInfoServer)message);
+                return true;
 
             default:
                 return false;
@@ -248,10 +251,16 @@ public class NetworkManager : MonoBehaviour
     {
         _isAuthenticated = true;
         _sessionToken = message.ReconnectToken;
-        _clientId = message.ClientId;
         // PlayerPrefs.SetString("SessionToken", _sessionToken);
-
         Debug.Log("Authentication successful");
+
+        SendMessage(new GetUserInfoClient());
+
+    }
+
+    private void SetUserInfo(GetUserInfoServer getUserInfoServer)
+    {
+        _clientId = getUserInfoServer.ClientId;
     }
 
     #endregion
