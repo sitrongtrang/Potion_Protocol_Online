@@ -34,6 +34,7 @@ public class PlayerNetworkSimulator : INetworkSimulator<PlayerInputSnapshot, Pla
 
     public void Reconcile(
         PlayerSnapshot serverSnapshot,
+        Func<PlayerSnapshot, PlayerSnapshot, bool> needReconciling,
         Action<PlayerSnapshot> applySnapshot,
         Func<PlayerInputMessage, PlayerSnapshot> simulateFromInput
     )
@@ -47,12 +48,13 @@ public class PlayerNetworkSimulator : INetworkSimulator<PlayerInputSnapshot, Pla
         {
             if (stateSnapshots[i].ProcessedInputSequence == serverSnapshot.ProcessedInputSequence)
             {
-                float dist = Vector2.Distance(serverSnapshot.Position, stateSnapshots[i].Position);
-                if (dist >= 0.1f)
+                if (needReconciling(serverSnapshot, stateSnapshots[i]))
                     index = i;
                 break;
             }
         }
+
+        
 
         if (index == -1) return;
 
