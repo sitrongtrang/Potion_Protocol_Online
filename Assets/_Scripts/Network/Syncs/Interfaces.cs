@@ -14,6 +14,8 @@ public interface IServerStateSnapshot
     public int ServerSequence { get; }
 }
 public interface INetworkSimulator<TInputListener, TInputMessage, TSnapshot>
+    where TInputMessage : IInputSnapshot
+    where TSnapshot : IStateSnapshot
 {
     void Simulate(TInputListener input, Func<TInputListener, TSnapshot> simulateAndReturnSnapshot);
     void Reconcile(
@@ -26,9 +28,11 @@ public interface INetworkSimulator<TInputListener, TInputMessage, TSnapshot>
     );
     void Reset();
 }
-public interface INetworkInterpolator<TState>
+public interface INetworkInterpolator<TClientState, TServerState>
+    where TClientState : IServerStateSnapshot
+    where TServerState : IServerStateSnapshot
 {
-    void Store(IReadOnlyList<TState> updates);
-    void Interpolate(Action<TState> applyState);
+    void Store(IReadOnlyList<TServerState> updates, Func<TServerState, int> findIdx);
+    void Interpolate(Action<TClientState> applyState);
     void Reset();
 }

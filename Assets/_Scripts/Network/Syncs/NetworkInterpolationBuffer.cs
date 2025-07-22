@@ -7,6 +7,7 @@ public class NetworkInterpolationBuffer<TServerState>
     private readonly ConcurrentMinHeap<TServerState> _serverStateBuffer;
     private readonly HashSet<int> _seenSequences;
     private readonly int _capacity;
+    public int Capacity => _capacity;
 
     public NetworkInterpolationBuffer(int capacity)
     {
@@ -74,5 +75,13 @@ public class NetworkInterpolationBuffer<TServerState>
         }
 
         return false;
+    }
+    public void Clear()
+    {
+        _serverStateBuffer.Clear();
+        lock (_seenSequences)
+        {
+            _seenSequences.Clear();
+        }
     }
 }

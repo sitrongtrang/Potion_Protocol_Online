@@ -101,4 +101,12 @@ public class ConcurrentMinHeap<T> where T : IComparable<T>
             index = smallest;
         }
     }
+
+    public void Clear()
+    {
+        lock (_lock)
+        {
+            _heap.Clear();
+        }
+    }
 }
