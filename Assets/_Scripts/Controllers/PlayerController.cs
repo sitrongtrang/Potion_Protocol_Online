@@ -185,6 +185,10 @@ public class PlayerController : MonoBehaviour
     private void TryReconcileServer(PlayerSnapshot state)
     {
         _simulator.Reconcile(state,
+            (serverSnapshot) =>
+            {
+                
+            },
             (serverSnapshot, historySnapshot) =>
             {
                 return Vector2.Distance(serverSnapshot.Position, historySnapshot.Position) > 0.1f;

@@ -34,6 +34,7 @@ public class PlayerNetworkSimulator : INetworkSimulator<PlayerInputSnapshot, Pla
 
     public void Reconcile(
         PlayerSnapshot serverSnapshot,
+        Action<PlayerSnapshot> resolveCannotReconcile,
         Func<PlayerSnapshot, PlayerSnapshot, bool> needReconciling,
         Action<PlayerSnapshot> applySnapshot,
         Func<PlayerInputMessage, PlayerSnapshot> simulateFromInput
@@ -43,18 +44,28 @@ public class PlayerNetworkSimulator : INetworkSimulator<PlayerInputSnapshot, Pla
         var inputSnapshots = (PlayerInputMessage[])_buffer.InputBufferAsArray.Clone();
 
         int index = -1;
+        bool cannotReconcile = true;
 
         for (int i = 0; i < stateSnapshots.Length; i++)
         {
             if (stateSnapshots[i].ProcessedInputSequence == serverSnapshot.ProcessedInputSequence)
             {
+                cannotReconcile = false;
                 if (needReconciling(serverSnapshot, stateSnapshots[i]))
                     index = i;
                 break;
             }
+            else if (serverSnapshot.ProcessedInputSequence > stateSnapshots[i].ProcessedInputSequence)
+            {
+                cannotReconcile = false;
+            }
         }
 
-        
+        if (cannotReconcile)
+        {
+            resolveCannotReconcile(serverSnapshot);
+            return;
+        }
 
         if (index == -1) return;
 

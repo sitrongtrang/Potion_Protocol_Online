@@ -32,7 +32,7 @@ public static class Serialization
         }
         catch (Exception e)
         {
-            Debug.LogError($"[Serialization Error] {message.MessageType}");
+            Debug.LogError($"[Serialization Error] {e.Message} {message.MessageType}");
             return null;
         }
     }
