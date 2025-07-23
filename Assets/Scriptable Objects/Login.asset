@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0221f51a54e577d4e88d19048e759a4b, type: 3}
   m_Name: Login
   m_EditorClassIdentifier: 
-  _staticURL: http://localhost:8081/users/login
+  _staticURL: http://localhost:8080/users/login

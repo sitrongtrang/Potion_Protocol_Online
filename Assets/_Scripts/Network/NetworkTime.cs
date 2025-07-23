@@ -58,13 +58,7 @@ public class NetworkTime : MonoBehaviour
     private void SendPing()
     {
         _awaitingPong = true;
-
-        var ping = new PingMessage
-        {
-            ClientSendTime = TimeSyncUtils.GetUnixTimeMilliseconds()
-        };
-
-        NetworkManager.Instance.SendMessage(ping);
+        NetworkManager.Instance.SendMessage(new PingMessage());
     }
 
     public void HandlePong(PongMessage pong)

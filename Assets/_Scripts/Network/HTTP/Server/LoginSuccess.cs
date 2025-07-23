@@ -17,6 +17,4 @@ public class LoginSuccessData
 {
     [JsonProperty("token")]
     public string Token;
-    [JsonProperty("userId")]
-    public string UserId;
 }

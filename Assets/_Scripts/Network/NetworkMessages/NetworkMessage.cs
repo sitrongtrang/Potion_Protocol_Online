@@ -15,30 +15,18 @@ public abstract class NetworkMessage
 [Serializable]
 public abstract class ClientMessage : NetworkMessage
 {
-    [JsonProperty("clientSendTime")]
-    public long ClientSendTime;
-    [JsonProperty("clientEstimatedServerTime")]
-    public long ClientEstimatedServerTime;
-    protected ClientMessage(short messageType) : base(messageType)
-    {
-        ClientSendTime = TimeSyncUtils.GetUnixTimeMilliseconds();
-        if (NetworkTime.Instance != null)
-            ClientEstimatedServerTime = NetworkTime.Instance.EstimatedServerTime;
-    }
+    protected ClientMessage(short messageType) : base(messageType) {  }
 }
 
 [Serializable]
 public abstract class ServerMessage : NetworkMessage
 {
-    [JsonProperty("serverSendTime")]
-    public long ServerSendTime;
     protected ServerMessage(short messageType) : base(messageType) { }
 }
 
 [Serializable]
 public class BatchPlayerInputMessage : ClientMessage
 {
-    [JsonProperty("playerInputs")]
     public PlayerInputMessage[] PlayerInputMessages;
     public BatchPlayerInputMessage() : base(NetworkMessageTypes.Client.Ingame.Input) { }
 }

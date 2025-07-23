@@ -4,8 +4,7 @@ using Newtonsoft.Json;
 [Serializable]
 public class AuthMessage : ClientMessage
 {
-    public string DeviceId;
-    [JsonProperty("token")]
+    [FieldOrder(0)]
     public string Token;
     public AuthMessage() : base(NetworkMessageTypes.Client.Authentication.TryAuth) { }
 }
