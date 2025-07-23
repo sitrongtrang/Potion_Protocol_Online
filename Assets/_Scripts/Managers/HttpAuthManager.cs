@@ -31,7 +31,7 @@ public class HttpAuthManager : MonoBehaviour
             Password = password
         };
 
-        string json = JsonConvert.SerializeObject(loginData, Serialization.Settings);
+        string json = JsonConvert.SerializeObject(loginData);
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
 
         UnityWebRequest request = new UnityWebRequest(_loginUrl.StaticURL, "POST");
@@ -46,7 +46,7 @@ public class HttpAuthManager : MonoBehaviour
             // Debug.Log("Login successful: " + request.downloadHandler.text);
             // Parse token or user info if needed
 
-            LoginSuccess loginSuccess = JsonConvert.DeserializeObject<LoginSuccess>(request.downloadHandler.text, Serialization.Settings);
+            LoginSuccess loginSuccess = JsonConvert.DeserializeObject<LoginSuccess>(request.downloadHandler.text);
             //NetworkManager.Instance.SetAuthenToken(loginSuccess.LoginSuccessDat.Token);
             //NetworkManager.Instance.SetClientId(loginSuccess.LoginSuccessDat.UserId);
             //NetworkManager.Instance.Authenticate();
@@ -72,7 +72,7 @@ public class HttpAuthManager : MonoBehaviour
             DisplayName = displayName
         };
 
-        string json = JsonConvert.SerializeObject(registerData, Serialization.Settings);
+        string json = JsonConvert.SerializeObject(registerData);
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
 
         UnityWebRequest request = new UnityWebRequest(_registerUrl.StaticURL, "POST");
@@ -85,8 +85,7 @@ public class HttpAuthManager : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             RegisterSuccess resp = JsonConvert.DeserializeObject<RegisterSuccess>(
-                request.downloadHandler.text,
-                Serialization.Settings
+                request.downloadHandler.text
             );
             Debug.Log("Register successful! Message: " + resp.Message);
         }
