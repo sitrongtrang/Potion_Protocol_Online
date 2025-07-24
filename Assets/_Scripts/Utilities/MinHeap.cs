@@ -1,74 +1,52 @@
 using System;
 using System.Collections.Generic;
 
-public class ConcurrentMinHeap<T> where T : IComparable<T>
+public class MinHeap<T> where T : IComparable<T>
 {
     private readonly List<T> _heap = new();
-    private readonly object _lock = new();
 
-    public int Count
-    {
-        get
-        {
-            lock (_lock)
-            {
-                return _heap.Count;
-            }
-        }
-    }
+    public int Count => _heap.Count;
 
     public void Add(T item)
     {
-        lock (_lock)
-        {
-            _heap.Add(item);
-            HeapifyUp(_heap.Count - 1);
-        }
+        _heap.Add(item);
+        HeapifyUp(_heap.Count - 1);
     }
 
     public bool TryPeek(out T result)
     {
-        lock (_lock)
+        if (_heap.Count == 0)
         {
-            if (_heap.Count == 0)
-            {
-                result = default;
-                return false;
-            }
-            result = _heap[0];
-            return true;
+            result = default;
+            return false;
         }
+        result = _heap[0];
+        return true;
     }
 
     public bool TryPop(out T result)
     {
-        lock (_lock)
+        if (_heap.Count == 0)
         {
-            if (_heap.Count == 0)
-            {
-                result = default;
-                return false;
-            }
-
-            result = _heap[0];
-            _heap[0] = _heap[^1];
-            _heap.RemoveAt(_heap.Count - 1);
-            HeapifyDown(0);
-            return true;
+            result = default;
+            return false;
         }
+
+        result = _heap[0];
+        _heap[0] = _heap[^1];
+        _heap.RemoveAt(_heap.Count - 1);
+        HeapifyDown(0);
+        return true;
     }
 
     public bool Contains(T item)
     {
-        lock (_lock)
+        foreach (var element in _heap)
         {
-            foreach (var element in _heap)
-            {
-                if (element.CompareTo(item) == 0)
-                    return true;
-            }
-            return false;
+            if (element.CompareTo(item) == 0)
+                return true;
         }
+        return false;
     }
 
     private void HeapifyUp(int index)
@@ -104,9 +82,6 @@ public class ConcurrentMinHeap<T> where T : IComparable<T>
 
     public void Clear()
     {
-        lock (_lock)
-        {
-            _heap.Clear();
-        }
+        _heap.Clear();
     }
 }

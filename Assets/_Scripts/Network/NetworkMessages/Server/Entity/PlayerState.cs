@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 public class PlayerState
 {
     public string PlayerId;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class NetworkInterpolationBuffer<TServerState>
     where TServerState : IServerStateSnapshot, IComparable<TServerState>
 {
-    private readonly ConcurrentMinHeap<TServerState> _serverStateBuffer;
+    private readonly MinHeap<TServerState> _serverStateBuffer;
     private readonly HashSet<int> _seenSequences;
     private readonly int _capacity;
     public int Capacity => _capacity;
@@ -21,17 +21,13 @@ public class NetworkInterpolationBuffer<TServerState>
         int seq = serverState.ServerSequence;
 
         // Prevent duplicates
-        lock (_seenSequences)
-        {
-            if (_seenSequences.Contains(seq))
-                return;
+        if (_seenSequences.Contains(seq))
+            return;
 
-            if (_serverStateBuffer.Count >= _capacity)
-                return;
+        if (_serverStateBuffer.Count >= _capacity)
+            return;
 
-            _seenSequences.Add(seq);
-        }
-
+        _seenSequences.Add(seq);
         _serverStateBuffer.Add(serverState);
     }
 
@@ -54,18 +50,12 @@ public class NetworkInterpolationBuffer<TServerState>
             if (seq < expectedSequence)
             {
                 _serverStateBuffer.TryPop(out var dropped);
-                lock (_seenSequences)
-                {
-                    _seenSequences.Remove(dropped.ServerSequence);
-                }
+                _seenSequences.Remove(dropped.ServerSequence);
             }
             else if (seq == expectedSequence)
             {
                 _serverStateBuffer.TryPop(out result);
-                lock (_seenSequences)
-                {
-                    _seenSequences.Remove(expectedSequence);
-                }
+                _seenSequences.Remove(expectedSequence);
                 return true;
             }
             else
@@ -76,12 +66,10 @@ public class NetworkInterpolationBuffer<TServerState>
 
         return false;
     }
+
     public void Clear()
     {
         _serverStateBuffer.Clear();
-        lock (_seenSequences)
-        {
-            _seenSequences.Clear();
-        }
+        _seenSequences.Clear();
     }
 }
