@@ -76,7 +76,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            _interpolator.Interpolate((serverState) =>
+            _interpolator.IncrementAndInterpolate((serverState) =>
             {
                 transform.position = new(serverState.PositionX, serverState.PositionY);
             });

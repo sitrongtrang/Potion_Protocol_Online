@@ -22,16 +22,16 @@ public class PlayerNetworkInterpolator : INetworkInterpolator<PlayerStateInterpo
                 {
                     if (update.ServerSequence < _serverSequence)
                     {
-                        _serverSequence = update.ServerSequence;
+                        _serverSequence = update.ServerSequence - 1;
                     }
                 }
-                else
-                {
-                    if (update.ServerSequence - _serverSequence > _buffer.Capacity)
-                    {
-                        _serverSequence = update.ServerSequence;
-                    }
-                }
+                // else
+                // {
+                //     if (update.ServerSequence - _serverSequence > _buffer.Capacity)
+                //     {
+                //         _serverSequence = update.ServerSequence;
+                //     }
+                // }
                 _buffer.Add(new PlayerStateInterpolateData()
                 {
                     ServerSequence = update.ServerSequence,
@@ -41,12 +41,12 @@ public class PlayerNetworkInterpolator : INetworkInterpolator<PlayerStateInterpo
             }
         }
     }
-    public void Interpolate(Action<PlayerStateInterpolateData> applyState)
+    public void IncrementAndInterpolate(Action<PlayerStateInterpolateData> applyState)
     {
+        _serverSequence += 1;
         if (_buffer.Poll(_serverSequence, out PlayerStateInterpolateData result))
         {
             applyState(result);
-            _serverSequence += 1;
         }
     }
 

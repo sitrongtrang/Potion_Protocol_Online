@@ -6,21 +6,22 @@ public enum InputFlags
 {
     None = 0,
     Dash = 1 << 0,
-    Attack = 1 << 1,
-    Pickup = 1 << 2,
-    Drop = 1 << 3,
-    Transfer = 1 << 4,
-    Craft = 1 << 5,
-    Submit = 1 << 6,
+    Move = 1 << 1,
+    Attack = 1 << 2,
+    Pickup = 1 << 3,
+    Drop = 1 << 4,
+    Transfer = 1 << 5,
+    Craft = 1 << 6,
+    Submit = 1 << 7,
 }
 
 [Serializable]
 public class PlayerInputMessage : ClientMessage, IInputSnapshot
 {
     public int InputSequence;
+    public int Flags;
     public float MoveDirX;
     public float MoveDirY;
-    public int Flags;
     public int SelectedSlot;
     public PlayerInputMessage(PlayerInputSnapshot playerInputSnapshot) : base(NetworkMessageTypes.Client.Ingame.Input)
     {

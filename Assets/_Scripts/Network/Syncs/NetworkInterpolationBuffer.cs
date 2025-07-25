@@ -4,8 +4,7 @@ using System.Collections.Generic;
 public class NetworkInterpolationBuffer<TServerState>
     where TServerState : IServerStateSnapshot, IComparable<TServerState>
 {
-    private readonly MinHeap<TServerState> _serverStateBuffer;
-    private readonly HashSet<int> _seenSequences;
+    private readonly SortedList<int, TServerState> _serverStateBuffer;
     private readonly int _capacity;
     public int Capacity => _capacity;
 
@@ -13,7 +12,6 @@ public class NetworkInterpolationBuffer<TServerState>
     {
         _capacity = capacity;
         _serverStateBuffer = new();
-        _seenSequences = new();
     }
 
     public void Add(TServerState serverState)
@@ -21,21 +19,19 @@ public class NetworkInterpolationBuffer<TServerState>
         int seq = serverState.ServerSequence;
 
         // Prevent duplicates
-        if (_seenSequences.Contains(seq))
+        if (_serverStateBuffer.ContainsKey(seq))
             return;
 
         if (_serverStateBuffer.Count >= _capacity)
             return;
-
-        _seenSequences.Add(seq);
-        _serverStateBuffer.Add(serverState);
+            
+        _serverStateBuffer.Add(serverState.ServerSequence, serverState);
     }
 
     public TServerState Peek()
     {
-        if (_serverStateBuffer.TryPeek(out var result))
+        if (TryPeek(out var result))
             return result;
-
         return default;
     }
 
@@ -43,19 +39,17 @@ public class NetworkInterpolationBuffer<TServerState>
     {
         result = default;
 
-        while (_serverStateBuffer.TryPeek(out var head))
+        while (TryPeek(out var head))
         {
             int seq = head.ServerSequence;
 
             if (seq < expectedSequence)
             {
-                _serverStateBuffer.TryPop(out var dropped);
-                _seenSequences.Remove(dropped.ServerSequence);
+                TryPop(out var dropped);
             }
             else if (seq == expectedSequence)
             {
-                _serverStateBuffer.TryPop(out result);
-                _seenSequences.Remove(expectedSequence);
+                TryPop(out result);
                 return true;
             }
             else
@@ -70,6 +64,29 @@ public class NetworkInterpolationBuffer<TServerState>
     public void Clear()
     {
         _serverStateBuffer.Clear();
-        _seenSequences.Clear();
+    }
+    
+    private bool TryPeek(out TServerState result)
+    {
+        if (_serverStateBuffer.Count > 0)
+        {
+            result = _serverStateBuffer.Values[0];
+            return true;
+        }
+        result = default;
+        return false;
+    }
+
+    private bool TryPop(out TServerState result)
+    {
+        if (_serverStateBuffer.Count > 0)
+        {
+            int firstKey = _serverStateBuffer.Keys[0];
+            result = _serverStateBuffer[firstKey];
+            _serverStateBuffer.RemoveAt(0);
+            return true;
+        }
+        result = default;
+        return false;
     }
 }
