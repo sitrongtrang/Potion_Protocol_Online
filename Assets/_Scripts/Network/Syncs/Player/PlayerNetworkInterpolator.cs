@@ -32,12 +32,15 @@ public class PlayerNetworkInterpolator : INetworkInterpolator<PlayerStateInterpo
                 //         _serverSequence = update.ServerSequence;
                 //     }
                 // }
-                _buffer.Add(new PlayerStateInterpolateData()
+                if (update.ServerSequence >= _serverSequence)
                 {
-                    ServerSequence = update.ServerSequence,
-                    PositionX = update.PlayerStates[idx].PositionX,
-                    PositionY = update.PlayerStates[idx].PositionY
-                });
+                    _buffer.Add(new PlayerStateInterpolateData()
+                    {
+                        ServerSequence = update.ServerSequence,
+                        PositionX = update.PlayerStates[idx].PositionX,
+                        PositionY = update.PlayerStates[idx].PositionY
+                    });
+                }
             }
         }
     }
