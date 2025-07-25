@@ -29,7 +29,7 @@ public class PlayerNetworkInterpolator : INetworkInterpolator<PlayerStateInterpo
                 // {
                 //     if (update.ServerSequence - _serverSequence > _buffer.Capacity)
                 //     {
-                //         _serverSequence = update.ServerSequence;
+                //         _serverSequence = update.ServerSequence - 1;
                 //     }
                 // }
                 if (update.ServerSequence >= _serverSequence)
